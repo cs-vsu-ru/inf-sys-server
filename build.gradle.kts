@@ -3,6 +3,7 @@ import java.util.*
 
 plugins {
     java
+    application
     id("org.springframework.boot") version "3.2.3"
     id("io.spring.dependency-management") version "1.1.4"
 
@@ -68,7 +69,7 @@ tasks.withType<JavaCompile> {
     )
 }
 
-tasks.withType<Test> {
+tasks.test {
     useJUnitPlatform()
 }
 
@@ -77,4 +78,12 @@ tasks.withType<Checkstyle>().configureEach {
 
         isShowViolations = true
     }
+}
+
+tasks.bootJar {
+    enabled = true
+}
+
+tasks.jar {
+    enabled = true
 }
