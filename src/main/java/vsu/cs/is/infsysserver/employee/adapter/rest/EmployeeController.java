@@ -42,12 +42,6 @@ public class EmployeeController implements EmployeeApi {
 
     @Override
     @GetMapping("/admin/{id}")
-    public ResponseEntity<EmployeeAdminResponse> getAdminEmployeeById(@PathVariable Long id) {
-        return ok(employeeService.getEmployeeAdminById(id));
-    }
-
-    @Override
-    @GetMapping("/admin/{id}")
     public ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(@PathVariable Long id) {
         return ok(employeeService.getEmployeeAdminById(id));
     }

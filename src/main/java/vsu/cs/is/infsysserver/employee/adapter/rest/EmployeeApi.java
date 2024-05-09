@@ -84,10 +84,8 @@ public interface EmployeeApi {
             )
     })
     @Operation(summary = "Возвращает сотрудника по ID")
-    ResponseEntity<EmployeeAdminResponse> getAdminEmployeeById(
+    ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(
             @Parameter(description = "ID искомого сотрудника") Long id);
-
-    ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(Long id);
 
     @ApiResponses(value = {
             @ApiResponse(
