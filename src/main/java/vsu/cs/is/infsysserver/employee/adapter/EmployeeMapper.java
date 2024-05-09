@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
-import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 
