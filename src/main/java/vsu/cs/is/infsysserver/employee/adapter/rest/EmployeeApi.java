@@ -61,6 +61,32 @@ public interface EmployeeApi {
     ResponseEntity<EmployeeResponse> getEmployeeById(
             @Parameter(description = "ID искомого сотрудника") Long id);
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Успешный возврат сотрудника",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = EmployeeAdminResponse.class)
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Отсутствует сотрудник с переданным ID",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorMessage.class)
+                            )
+                    }
+            )
+    })
+    @Operation(summary = "Возвращает сотрудника по ID")
+    ResponseEntity<EmployeeAdminResponse> getAdminEmployeeById(
+            @Parameter(description = "ID искомого сотрудника") Long id);
+
     ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(Long id);
 
     @ApiResponses(value = {
@@ -86,7 +112,7 @@ public interface EmployeeApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = EmployeeResponse.class)
+                                    schema = @Schema(implementation = EmployeeAdminResponse.class)
                             )
                     }
             ),
