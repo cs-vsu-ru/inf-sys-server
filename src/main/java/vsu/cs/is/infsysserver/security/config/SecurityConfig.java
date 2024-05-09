@@ -10,13 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import vsu.cs.is.infsysserver.security.entity.temp.Permission;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static vsu.cs.is.infsysserver.security.entity.temp.Permission.ADMIN_READ;
-import static vsu.cs.is.infsysserver.security.entity.temp.Permission.USER_READ;
-import static vsu.cs.is.infsysserver.security.entity.temp.Role.ADMIN;
-import static vsu.cs.is.infsysserver.security.entity.temp.Role.USER;
 
 @Configuration
 @EnableWebSecurity
@@ -31,10 +26,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req
-                                .anyRequest()
-                                .permitAll()
-//                                .anyRequest().hasAnyAuthority(ADMIN_READ.getPermission()) //просто пример, как закрыть эндпоинт по пермиту
+                                req
+                                        .anyRequest()
+                                        .permitAll()
+//                                      пример, как закрыть эндпоинт по пермиту
+//                                      .anyRequest().hasAnyAuthority(ADMIN_READ.getPermission())
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)

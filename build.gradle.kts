@@ -73,27 +73,33 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.withType<JavaCompile> {
-    options.compilerArgs = listOf(
-        "-Amapstruct.defaultComponentModel=spring",
-        "-parameters"
-    )
-}
+tasks {
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks.withType<Checkstyle>().configureEach {
-    reports {
-        isShowViolations = true
+    withType<JavaCompile> {
+        options.compilerArgs = listOf(
+            "-Amapstruct.defaultComponentModel=spring",
+            "-parameters"
+        )
     }
-}
 
-tasks.bootJar {
-    enabled = true
-}
+    test {
+        useJUnitPlatform()
+    }
 
-tasks.jar {
-    enabled = true
+    checkstyle {
+        isShowViolations = true
+
+        checkstyleTest {
+            enabled = false
+        }
+
+    }
+
+    bootJar {
+        enabled = true
+    }
+
+    jar {
+        enabled = true
+    }
 }

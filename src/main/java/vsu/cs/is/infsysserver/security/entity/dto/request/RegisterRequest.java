@@ -12,7 +12,7 @@ import vsu.cs.is.infsysserver.security.entity.temp.Role;
 @NoArgsConstructor
 public class RegisterRequest {
 
-  private String email;
-  private String password;
-  private Role role;
+    private String email;
+    private String password;
+    private Role role;
 }

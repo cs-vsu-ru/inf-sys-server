@@ -22,6 +22,8 @@ import vsu.cs.is.infsysserver.security.util.UserMapper;
 
 import java.io.IOException;
 
+import static vsu.cs.is.infsysserver.security.util.Constants.BEARER_PREFIX;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -49,7 +51,7 @@ public class AuthenticationService {
 
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
-        if (!ldapAuthentication.isConnectionSuccess(request)){
+        if (!ldapAuthentication.isConnectionSuccess(request)) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
         }
 
@@ -85,8 +87,7 @@ public class AuthenticationService {
 
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
+        if (validUserTokens.isEmpty()) return;
         validUserTokens.forEach(token -> {
             token.setExpired(true);
             token.setRevoked(true);
@@ -99,10 +100,10 @@ public class AuthenticationService {
             HttpServletResponse response
     ) throws IOException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return;
         }
-        String refreshToken = authHeader.substring(7);
+        String refreshToken = authHeader.substring(BEARER_PREFIX.length());
         String userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
             var user = this.repository.findByEmail(userEmail)

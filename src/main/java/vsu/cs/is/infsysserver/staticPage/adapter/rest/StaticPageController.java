@@ -3,7 +3,15 @@ package vsu.cs.is.infsysserver.staticPage.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.staticPage.StaticPageService;
 import vsu.cs.is.infsysserver.staticPage.adapter.rest.api.StaticPageApi;
 import vsu.cs.is.infsysserver.staticPage.adapter.rest.dto.request.StaticPageCreateRequest;
@@ -37,7 +45,9 @@ public class StaticPageController implements StaticPageApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<StaticPageResponse> createStaticPage(@RequestBody StaticPageCreateRequest staticPageCreateRequest) {
+    public ResponseEntity<StaticPageResponse> createStaticPage(
+            @RequestBody StaticPageCreateRequest staticPageCreateRequest
+    ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(staticPageService.createStaticPage(staticPageCreateRequest));
@@ -45,8 +55,10 @@ public class StaticPageController implements StaticPageApi {
 
     @Override
     @PutMapping("/{id}")
-    public ResponseEntity<StaticPageResponse> updateStaticPageById(@PathVariable Long id,
-                                                                   @RequestBody StaticPageUpdateRequest staticPageUpdateRequest) {
+    public ResponseEntity<StaticPageResponse> updateStaticPageById(
+            @PathVariable Long id,
+            @RequestBody StaticPageUpdateRequest staticPageUpdateRequest
+    ) {
         return ok(staticPageService.updateStaticPageById(id, staticPageUpdateRequest));
     }
 

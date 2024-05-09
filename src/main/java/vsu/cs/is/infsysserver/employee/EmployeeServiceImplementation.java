@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.employee.adapter.EmployeeMapper;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.EmployeeRepository;
-import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

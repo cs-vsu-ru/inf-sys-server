@@ -8,11 +8,11 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeRespons
 
 @Mapper
 public interface EmployeeMapper {
-    Employee map(final EmployeeResponse employeeResponse);
+    Employee map(EmployeeResponse employeeResponse);
 
-    EmployeeResponse map(final Employee employee);
+    EmployeeResponse map(Employee employee);
 
-    Employee map(final EmployeeCreateRequest employeeCreateRequest);
+    Employee map(EmployeeCreateRequest employeeCreateRequest);
 
-    Employee map(final EmployeeUpdateRequest employeeUpdateRequest);
+    Employee map(EmployeeUpdateRequest employeeUpdateRequest);
 }

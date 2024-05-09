@@ -1,7 +1,5 @@
 package vsu.cs.is.infsysserver.security.service;
 
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
@@ -15,7 +13,7 @@ public class LdapAuthentication {
     @Value("${application.security.ldap.email-host}")
     private String emailHost;
 
-    public boolean isConnectionSuccess(AuthenticationRequest authenticationRequest){
+    public boolean isConnectionSuccess(AuthenticationRequest authenticationRequest) {
         return true;
 
 //        String username = authenticationRequest.getEmail() + "@" + emailHost;

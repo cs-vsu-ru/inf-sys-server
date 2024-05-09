@@ -18,6 +18,8 @@ import vsu.cs.is.infsysserver.security.service.JwtService;
 
 import java.io.IOException;
 
+import static vsu.cs.is.infsysserver.security.util.Constants.BEARER_PREFIX;
+
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -33,11 +35,11 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
-        String jwt = authHeader.substring(7);
+        String jwt = authHeader.substring(BEARER_PREFIX.length());
         String userEmail = jwtService.extractUsername(jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
