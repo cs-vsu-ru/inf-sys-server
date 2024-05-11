@@ -2,10 +2,9 @@ name: Publish Docker Image to Registry
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [ "Build" ]
-    types:
-      - completed
+  push:
+    branches:
+      - "master"
 
 env:
   REGISTRY: ghcr.io
