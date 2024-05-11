@@ -24,7 +24,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@SuppressWarnings("MethodName")
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Модульные тесты NewsService")
 class NewsServiceTest {

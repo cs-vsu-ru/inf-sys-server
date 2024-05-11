@@ -14,9 +14,11 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository.findByEmail(username).orElseThrow(()-> new NoSuchElementException("No such user"));
+        var user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new NoSuchElementException("No such user"));
         return UserMapper.mapUserToUserDetails(user);
     }
 }

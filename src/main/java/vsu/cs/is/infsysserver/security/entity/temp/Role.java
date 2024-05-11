@@ -4,12 +4,22 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static vsu.cs.is.infsysserver.security.entity.temp.Permission.*;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.ADMIN_CREATE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.ADMIN_DELETE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.ADMIN_READ;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.ADMIN_UPDATE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.MODERATOR_CREATE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.MODERATOR_DELETE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.MODERATOR_READ;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.MODERATOR_UPDATE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.USER_CREATE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.USER_DELETE;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.USER_READ;
+import static vsu.cs.is.infsysserver.security.entity.temp.Permission.USER_UPDATE;
 
 @Getter
 @RequiredArgsConstructor

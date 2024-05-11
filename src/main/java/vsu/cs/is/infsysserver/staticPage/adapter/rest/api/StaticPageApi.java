@@ -11,9 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.ResponseEntity;
-import vsu.cs.is.infsysserver.events.adapter.rest.dto.request.EventCreateRequest;
-import vsu.cs.is.infsysserver.events.adapter.rest.dto.request.EventUpdateRequest;
-import vsu.cs.is.infsysserver.events.adapter.rest.dto.response.EventResponse;
 import vsu.cs.is.infsysserver.staticPage.adapter.rest.dto.request.StaticPageCreateRequest;
 import vsu.cs.is.infsysserver.staticPage.adapter.rest.dto.request.StaticPageUpdateRequest;
 import vsu.cs.is.infsysserver.staticPage.adapter.rest.dto.response.StaticPageResponse;
@@ -58,7 +55,9 @@ public interface StaticPageApi {
             )
     })
     @Operation(summary = "Отдает статическую страницу по идентификатору")
-    ResponseEntity<StaticPageResponse> getStaticPageById(@Parameter(description = "Идентификатор статической страницы") Long id);
+    ResponseEntity<StaticPageResponse> getStaticPageById(
+            @Parameter(description = "Идентификатор статической страницы") Long id
+    );
 
     @ApiResponses(value = {
             @ApiResponse(

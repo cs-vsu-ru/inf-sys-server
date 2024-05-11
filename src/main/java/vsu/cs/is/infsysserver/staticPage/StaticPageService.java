@@ -50,9 +50,13 @@ public class StaticPageService {
     }
 
     private StaticPage findByIdOrThrow(Long id) {
-        return staticPageRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("По идентификатору: " + id + " не найдено ни одной статической страницы")
-        );
+        return staticPageRepository.findById(id)
+                .orElseThrow(
+                        () -> {
+                            var msg = "По идентификатору: %s не найдено ни одной статической страницы".formatted(id);
+                            return new EntityNotFoundException(msg);
+                        }
+                );
     }
 
 }
