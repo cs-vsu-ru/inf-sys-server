@@ -2,8 +2,11 @@ name: Check application reliability
 
 on:
   workflow_dispatch:
-  workflow_call:
   pull_request:
+    types:
+      - "opened"
+    branches:
+      - "master"
 
 jobs:
   build:
