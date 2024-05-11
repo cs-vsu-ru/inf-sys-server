@@ -1,7 +1,8 @@
-name: Build application
+name: Check application reliability
 
 on:
   workflow_dispatch:
+  workflow_call:
   pull_request:
 
 jobs:
@@ -17,5 +18,5 @@ jobs:
 
       - run: chmod +x gradlew
 
-      - name: Gradle Build
-        run: ./gradlew build
+      - name: Gradle Check
+        run: ./gradlew check
