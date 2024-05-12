@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "users_sequence")
+    @SequenceGenerator(
+            name = "users_sequence",
+            allocationSize = 1)
     @Column(name = "id")
     private Long id;
 
