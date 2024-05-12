@@ -7,6 +7,7 @@ import java.util.Set;
 
 @Builder
 public record EmployeeResponse(
+        //TODO: СДЕЛАТЬ СВАГГЕР
         Long id,
         String firstName,
         String lastName,

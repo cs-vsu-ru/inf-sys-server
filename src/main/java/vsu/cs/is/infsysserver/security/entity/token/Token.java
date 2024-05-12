@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-import vsu.cs.is.infsysserver.security.entity.temp.User;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.util.Objects;
 

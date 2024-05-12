@@ -63,6 +63,11 @@ public class EmployeeServiceMock implements EmployeeService {
     }
 
     @Override
+    public EmployeeResponse getEmployeeByEmail(String email) {
+        return null;
+    }
+
+    @Override
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest) {
         return EmployeeResponse.builder()
                 .id(1L)
