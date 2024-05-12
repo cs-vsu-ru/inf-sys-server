@@ -44,7 +44,7 @@ public class AuthenticationService {
         var savedUser = repository.save(user);
         var userDetails = UserMapper.mapUserToUserDetails(savedUser);
         var jwtToken = jwtService.generateToken(userDetails);
-        var refreshToken = jwtService.generateRefreshToken(userDetails);
+//        var refreshToken = jwtService.generateRefreshToken(userDetails);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -69,7 +69,7 @@ public class AuthenticationService {
                 .orElseThrow();
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);
-        var refreshToken = jwtService.generateRefreshToken(userDetail);
+//        var refreshToken = jwtService.generateRefreshToken(userDetail);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return ResponseEntity.ok(AuthenticationResponse.builder()
