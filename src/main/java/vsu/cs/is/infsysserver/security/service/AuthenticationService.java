@@ -44,11 +44,12 @@ public class AuthenticationService {
         var savedUser = repository.save(user);
         var userDetails = UserMapper.mapUserToUserDetails(savedUser);
         var jwtToken = jwtService.generateToken(userDetails);
-        var refreshToken = jwtService.generateRefreshToken(userDetails);
+//        var refreshToken = jwtService.generateRefreshToken(userDetails);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+//                .refreshToken(refreshToken)
+                .mainRole(user.getRole().name())
                 .build();
     }
 
@@ -68,12 +69,13 @@ public class AuthenticationService {
                 .orElseThrow();
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);
-        var refreshToken = jwtService.generateRefreshToken(userDetail);
+//        var refreshToken = jwtService.generateRefreshToken(userDetail);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
+//                .refreshToken(refreshToken)
+                .mainRole(user.getRole().name())
                 .build());
     }
 
@@ -118,7 +120,8 @@ public class AuthenticationService {
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
+//                        .refreshToken(refreshToken)
+                        .mainRole(user.getRole().name())
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
