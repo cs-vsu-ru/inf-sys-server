@@ -15,7 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.AllArgsConstructor;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
-import vsu.cs.is.infsysserver.security.entity.temp.User;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.io.Serializable;
 import java.time.LocalDate;
