@@ -22,6 +22,6 @@ public interface UserApi {
             }
     )
     @Operation(summary = "Отдает данные аутентифицированного пользователя")
-    ResponseEntity<EmployeeResponse> getAccountInfo(@Parameter(description = "Аутентифицированный пользователь. " +
-            "Не передается клиентом, а получется в контроллере на сервере") String authUserEmail);
+    ResponseEntity<EmployeeResponse> getAccountInfo(@Parameter(description = "Аутентифицированный пользователь. "
+            + "Не передается клиентом, а получется в контроллере на сервере") String authUserEmail);
 }
