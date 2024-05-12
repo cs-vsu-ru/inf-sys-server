@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
+import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 
 import java.util.List;
@@ -25,7 +26,6 @@ public class EmployeeServiceMock implements EmployeeService {
                         .imageUrl("http://www.cs.vsu.ru:80/is/api/files/4ecf18f1-c0a3-47a1-bc71-79ade98c1da6Зуев.jpg")
                         .lastName("Иван")
                         .patronymic("Иванович")
-                        .mainRole("USER")
                         .build(),
 
                 EmployeeResponse.builder()
@@ -39,7 +39,6 @@ public class EmployeeServiceMock implements EmployeeService {
                         .firstName("Петров")
                         .lastName("Петр")
                         .patronymic("Петрович")
-                        .mainRole("USER")
                         .build());
     }
 
@@ -55,8 +54,12 @@ public class EmployeeServiceMock implements EmployeeService {
                 .firstName("Иванов")
                 .lastName("Иван")
                 .patronymic("Иванович")
-                .mainRole("USER")
                 .build();
+    }
+
+    @Override
+    public EmployeeAdminResponse getEmployeeAdminById(long id) {
+        return null;
     }
 
     @Override
@@ -71,13 +74,12 @@ public class EmployeeServiceMock implements EmployeeService {
                 .firstName("Иванов")
                 .lastName("Иван")
                 .patronymic("Иванович")
-                .mainRole("USER")
                 .build();
     }
 
     @Override
-    public EmployeeResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest) {
-        return EmployeeResponse.builder()
+    public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest) {
+        return EmployeeAdminResponse.builder()
                 .id(1L)
                 .email("example@example.com")
                 .academicDegree("Кандидат наук")
@@ -87,7 +89,6 @@ public class EmployeeServiceMock implements EmployeeService {
                 .firstName("Иванов")
                 .lastName("Иван")
                 .patronymic("Иванович")
-                .mainRole("USER")
                 .build();
     }
 
