@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImplementation implements EmployeeService {
+
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
 
@@ -33,6 +34,13 @@ public class EmployeeServiceImplementation implements EmployeeService {
     @Override
     public EmployeeAdminResponse getEmployeeAdminById(long id) {
         return employeeMapper.mapAdmin(findByIdOrThrow(id));
+    }
+
+    @Override
+    public EmployeeResponse getEmployeeByEmail(String email) {
+        return employeeMapper.map(employeeRepository.findByUserEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
+        ));
     }
 
     @Override
