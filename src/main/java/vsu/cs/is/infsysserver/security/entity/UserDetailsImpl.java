@@ -12,7 +12,7 @@ import java.util.Collection;
 @Builder
 public class UserDetailsImpl implements UserDetails {
 
-    private String email;
+    private String login;
     private String password;
     private Role role;
 
@@ -28,7 +28,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return login;
     }
 
     @Override

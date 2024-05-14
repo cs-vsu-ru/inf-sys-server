@@ -37,7 +37,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
-                .email(request.getUsername())
+                .login(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .build();
@@ -65,7 +65,7 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = repository.findByEmail(request.getUsername())
+        var user = repository.findByLogin(request.getUsername())
                 .orElseThrow();
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);
@@ -109,9 +109,9 @@ public class AuthenticationService {
             return;
         }
         String refreshToken = authHeader.substring(BEARER_PREFIX.length());
-        String userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.repository.findByEmail(userEmail)
+        String userLogin = jwtService.extractUsername(refreshToken);
+        if (userLogin != null) {
+            var user = this.repository.findByLogin(userLogin)
                     .orElseThrow();
             var userDetails = UserMapper.mapUserToUserDetails(user);
             if (jwtService.isTokenValid(refreshToken, userDetails)) {
