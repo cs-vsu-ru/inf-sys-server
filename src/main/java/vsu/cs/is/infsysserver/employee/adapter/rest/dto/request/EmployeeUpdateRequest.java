@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.employee.adapter.rest.dto.request;
 import java.time.LocalDate;
 
 public record EmployeeUpdateRequest(
+
         Long id,
         String firstName,
         String lastName,

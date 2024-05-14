@@ -1,5 +1,12 @@
 package vsu.cs.is.infsysserver.employee;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import vsu.cs.is.infsysserver.employee.adapter.EmployeeMapper;
+import vsu.cs.is.infsysserver.employee.adapter.jpa.EmployeeRepository;
+import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
@@ -7,20 +14,57 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeRespons
 
 import java.util.List;
 
-public interface EmployeeService {
+@Service
+@RequiredArgsConstructor
+public class EmployeeService {
 
-    List<EmployeeResponse> getAllEmployees();
+    private final EmployeeRepository employeeRepository;
+    private final EmployeeMapper employeeMapper;
 
-    EmployeeResponse getEmployeeById(long id);
+    public List<EmployeeResponse> getAllEmployees() {
+        return employeeRepository.findAll().stream().map(employeeMapper::map).toList();
+    }
 
-    EmployeeAdminResponse getEmployeeAdminById(long id);
+    public EmployeeResponse getEmployeeById(long id) {
+        return employeeMapper.map(findByIdOrThrow(id));
+    }
 
-    EmployeeResponse getEmployeeByLogin(String login);
+    public EmployeeAdminResponse getEmployeeAdminById(long id) {
+        return employeeMapper.mapAdmin(findByIdOrThrow(id));
+    }
 
-    EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest);
+    public EmployeeResponse getEmployeeByEmail(String email) {
+        return employeeMapper.map(employeeRepository.findByUserEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
+        ));
+    }
 
-    EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest);
+    public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest) {
+        Employee employee = employeeRepository.save(
+                employeeMapper.map(employeeCreateRequest));
 
-    void deleteEmployeeById(long id);
+        if (employee.isHasLessons()) {
+            //todo: call parser to create lessons
+        }
+        return employeeMapper.map(employee);
+    }
 
+    @Transactional
+    public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest) {
+        //todo: handle parser lessons if hasLessons changed
+        Employee employee = findByIdOrThrow(id);
+        employee.updateFromRequest(employeeUpdateRequest);
+        return employeeMapper.mapAdmin(
+                employeeRepository.save(employee));
+    }
+
+    public void deleteEmployeeById(long id) {
+        employeeRepository.delete(findByIdOrThrow(id));
+    }
+
+    private Employee findByIdOrThrow(Long id) {
+        return employeeRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("По id: " + id + " не найдено ни одного сотрудника")
+        );
+    }
 }

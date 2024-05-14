@@ -6,6 +6,7 @@ import java.util.Set;
 
 @Builder
 public record EmployeeAdminResponse(
+
         Long id,
         String firstName,
         String lastName,

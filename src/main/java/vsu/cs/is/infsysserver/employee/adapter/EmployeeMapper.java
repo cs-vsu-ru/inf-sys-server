@@ -9,6 +9,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeRespons
 
 @Mapper
 public interface EmployeeMapper {
+
     @Mapping(source = "user.firstName", target = "firstName")
     @Mapping(source = "user.lastName", target = "lastName")
     @Mapping(source = "user.email", target = "email")

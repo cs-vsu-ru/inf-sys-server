@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Employee implements Serializable {
+
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
