@@ -55,9 +55,9 @@ public class AuthenticationService {
 
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
-//        if (!ldapAuthentication.isConnectionSuccess(request)) {
-//            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
-//        }
+        if (!ldapAuthentication.isConnectionSuccess(request)) {
+            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
