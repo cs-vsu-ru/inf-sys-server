@@ -63,7 +63,7 @@ public class EmployeeServiceMock implements EmployeeService {
     }
 
     @Override
-    public EmployeeResponse getEmployeeByEmail(String email) {
+    public EmployeeResponse getEmployeeByLogin(String login) {
         return null;
     }
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.employee.EmployeeServiceImplementation;
+import vsu.cs.is.infsysserver.employee.EmployeeServiceMock;
 import vsu.cs.is.infsysserver.employee.adapter.rest.api.EmployeeApi;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
@@ -28,11 +29,12 @@ import static org.springframework.http.ResponseEntity.ok;
 @CrossOrigin
 public class EmployeeController implements EmployeeApi {
     private final EmployeeServiceImplementation employeeService;
+    private final EmployeeServiceMock employeeServiceMock;
 
     @Override
     @GetMapping
     public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
-        return ok(employeeService.getAllEmployees());
+        return ok(employeeServiceMock.getAllEmployees());
     }
 
     @Override
