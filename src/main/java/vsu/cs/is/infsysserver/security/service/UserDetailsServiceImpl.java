@@ -18,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository.findByEmail(username).orElseThrow(
+        var user = userRepository.findByLogin(username).orElseThrow(
                 () -> new NoSuchElementException("No such user")
                 );
         return UserMapper.mapUserToUserDetails(user);
