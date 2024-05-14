@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
-import vsu.cs.is.infsysserver.security.entity.temp.User;
-import vsu.cs.is.infsysserver.security.entity.temp.UserRepository;
 import vsu.cs.is.infsysserver.security.entity.token.Token;
 import vsu.cs.is.infsysserver.security.entity.token.TokenRepository;
 import vsu.cs.is.infsysserver.security.entity.token.TokenType;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.io.IOException;
 

@@ -1,1 +1,5 @@
-databaseChangeLog: []
+databaseChangeLog:
+  - includeAll:
+      path: db/changelog/changeset
+  - includeAll:
+      path: db/changelog/data

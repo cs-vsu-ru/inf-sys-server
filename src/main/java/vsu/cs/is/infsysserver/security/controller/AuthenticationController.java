@@ -24,7 +24,9 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
+    @Deprecated
     @PostMapping("/register")
+    // Регистрация идет через создание нового сотрудника
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(service.register(request));
     }
@@ -38,7 +40,7 @@ public class AuthenticationController {
     public void refreshToken(HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
         service.refreshToken(request, response);
-    }
+}
 
 
 }

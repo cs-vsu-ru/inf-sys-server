@@ -4,11 +4,13 @@ spring:
     url: jdbc:postgresql://localhost:5433/inf-sys
     username: inf-sys-server
     password: ${POSTGRES_PASSWORD}
-
+  liquibase:
+    contexts: local
+    enabled: true
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
 server:
   port: 3030
