@@ -33,3 +33,8 @@ INSERT INTO employees(date_of_birth, has_lessons,
                       patronymic, plan, post, professional_experience)
 VALUES ('1999-01-01', true, '2024-05-12', 6, 'Кандидат наук', 'Без ученого звания', '2013-01-01',
         'Юрьевич', 'http://www.cs.vsu.ru:80/is/api/files/011e67da-0129-48db-82f2-dfe744c85f9cМалыхин.pdf', 'Старший преподаватель', '2014-09-01');
+INSERT INTO employees(date_of_birth, has_lessons,
+                      created_at, user_id, academic_degree, academic_title, experience,
+                      patronymic, plan, post, professional_experience)
+VALUES ('1999-01-01', false, '2024-05-12', 7, 'Тест', 'тест', '2013-01-01',
+        'Михайлович', null, 'Разработчик', '2014-09-01');

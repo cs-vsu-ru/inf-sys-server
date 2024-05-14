@@ -37,9 +37,9 @@ public class EmployeeServiceImplementation implements EmployeeService {
     }
 
     @Override
-    public EmployeeResponse getEmployeeByEmail(String email) {
-        return employeeMapper.map(employeeRepository.findByUserEmail(email).orElseThrow(
-                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
+    public EmployeeResponse getEmployeeByLogin(String login) {
+        return employeeMapper.map(employeeRepository.findByUserLogin(login).orElseThrow(
+                () -> new EntityNotFoundException("По логину: " + login + " не найдено ни одного сотрудника")
         ));
     }
 

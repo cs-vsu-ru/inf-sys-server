@@ -15,7 +15,7 @@ public interface EmployeeService {
 
     EmployeeAdminResponse getEmployeeAdminById(long id);
 
-    EmployeeResponse getEmployeeByEmail(String email);
+    EmployeeResponse getEmployeeByLogin(String login);
 
     EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest);
 

@@ -23,7 +23,7 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<EmployeeResponse> getAccountInfo(@AuthenticationPrincipal String authUserEmail) {
-        return ok(employeeService.getEmployeeByEmail(authUserEmail));
+    public ResponseEntity<EmployeeResponse> getAccountInfo(@AuthenticationPrincipal String authUserLogin) {
+        return ok(employeeService.getEmployeeByLogin(authUserLogin));
     }
 }
