@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.employee.adapter.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,9 +58,10 @@ public class EmployeeController implements EmployeeApi {
     @PatchMapping("/{id}")
     public ResponseEntity<EmployeeAdminResponse> updateEmployeeById(
             @PathVariable Long id,
-            @RequestBody EmployeeUpdateRequest employeeUpdateRequest
+            @RequestBody EmployeeUpdateRequest employeeUpdateRequest,
+            @AuthenticationPrincipal String authUserEmail
     ) {
-        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest));
+        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest, authUserEmail));
     }
 
     @Override

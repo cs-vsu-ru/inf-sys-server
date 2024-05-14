@@ -83,7 +83,7 @@ public interface EmployeeApi {
                     }
             )
     })
-    @Operation(summary = "Возвращает сотрудника по ID")
+    @Operation(summary = "Возвращает сотрудника с админ-полями по ID")
     ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(
             @Parameter(description = "ID искомого сотрудника") Long id);
 
@@ -128,7 +128,10 @@ public interface EmployeeApi {
     @Operation(summary = "Обновляет сотрудника с переданным ID")
     ResponseEntity<EmployeeAdminResponse> updateEmployeeById(
             @Parameter(description = "ID обновляемого сотрудника") Long id,
-            @Parameter(description = "Данные для обновления") EmployeeUpdateRequest employeeUpdateRequest);
+            @Parameter(description = "Данные для обновления") EmployeeUpdateRequest employeeUpdateRequest,
+            @Parameter(description = "Аутентифицированный пользователь. " +
+                    "Не передается клиентом, а получется в контроллере на сервере")
+            String authUserEmail);
 
     @ApiResponses(value = {
             @ApiResponse(

@@ -11,6 +11,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.util.List;
 
@@ -34,9 +35,7 @@ public class EmployeeService {
     }
 
     public EmployeeResponse getEmployeeByEmail(String email) {
-        return employeeMapper.map(employeeRepository.findByUserEmail(email).orElseThrow(
-                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
-        ));
+        return employeeMapper.map(findByUserEmailOrThrow(email));
     }
 
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest) {
@@ -50,10 +49,11 @@ public class EmployeeService {
     }
 
     @Transactional
-    public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest) {
+    public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
+                                                    String updaterEmail) {
         //todo: handle parser lessons if hasLessons changed
         Employee employee = findByIdOrThrow(id);
-        employee.updateFromRequest(employeeUpdateRequest);
+        employee.updateFromRequest(employeeUpdateRequest, findByUserEmailOrThrow(updaterEmail).getUser());
         return employeeMapper.mapAdmin(
                 employeeRepository.save(employee));
     }
@@ -65,6 +65,12 @@ public class EmployeeService {
     private Employee findByIdOrThrow(Long id) {
         return employeeRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("По id: " + id + " не найдено ни одного сотрудника")
+        );
+    }
+
+    private Employee findByUserEmailOrThrow(String email) {
+        return employeeRepository.findByUserEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
         );
     }
 }
