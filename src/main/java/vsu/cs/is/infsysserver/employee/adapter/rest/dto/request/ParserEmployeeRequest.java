@@ -1,4 +1,6 @@
 package vsu.cs.is.infsysserver.employee.adapter.rest.dto.request;
 
-public class CreateEmptyLessonsRequest {
+public record ParserEmployeeRequest(
+        Long employeeId
+) {
 }
