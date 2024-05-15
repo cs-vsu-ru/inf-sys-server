@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.employee.adapter.rest.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import vsu.cs.is.infsysserver.security.entity.temp.Role;
 
 import java.util.Date;
 
@@ -36,6 +37,8 @@ public record EmployeeAdminResponse(
                 = "http://www.cs.vsu.ru:80/is/api/files/52d649cf-65dc-4834-962c-72fbec74f396Зуев.pdf")
         String plan,
         @Schema(description = "Проводит ли занятия", example = "false")
-        Boolean hasLessons
+        Boolean hasLessons,
+        @Schema(description = "Роль пользователя", example = "MODERATOR")
+        Role role
 ) {
 }
