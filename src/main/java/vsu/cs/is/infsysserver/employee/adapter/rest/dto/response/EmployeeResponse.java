@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.Date;
+import java.util.Set;
 
 @Builder
 public record EmployeeResponse(
@@ -33,6 +34,8 @@ public record EmployeeResponse(
         @Schema(description = "Ссылка на индивидуальный план работы преподавателя", example
                 = "http://www.cs.vsu.ru:80/is/api/files/52d649cf-65dc-4834-962c-72fbec74f396Зуев.pdf")
         String plan,
+        @Schema(description = "Список специальностей")
+        Set<String> specialities,
         @Schema(description = "Проводит ли занятия", example = "false")
         Boolean hasLessons
 ) {
