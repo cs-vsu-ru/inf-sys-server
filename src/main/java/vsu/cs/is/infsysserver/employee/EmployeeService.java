@@ -11,9 +11,9 @@ import org.springframework.web.client.RestTemplate;
 import vsu.cs.is.infsysserver.employee.adapter.EmployeeMapper;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.EmployeeRepository;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
-import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.ParserEmployeeRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
+import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.ParserEmployeeRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
@@ -29,7 +29,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final EmployeeMapper employeeMapper;
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     private final String parserUrl = "";
 
@@ -65,15 +65,13 @@ public class EmployeeService {
     }
 
 
-
     @Transactional
     public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
                                                     String authUserLogin) {
         Employee employee = findByIdOrThrow(id);
         if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
             doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
-        }
-        else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
+        } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
             doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
         }
         employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
@@ -102,6 +100,7 @@ public class EmployeeService {
 
         ResponseEntity<Void> response = restTemplate.postForEntity(
                 parserUrl + operation.getUrlPart(), entity, Void.class);
+        response.getStatusCode();
     }
 
     private Employee findByLoginOrThrow(String login) {

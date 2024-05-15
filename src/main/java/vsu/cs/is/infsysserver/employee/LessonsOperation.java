@@ -6,7 +6,7 @@ public enum LessonsOperation {
 
     private final String urlPart;
 
-    private LessonsOperation(String urlPart) {
+    LessonsOperation(String urlPart) {
         this.urlPart = urlPart;
     }
 
