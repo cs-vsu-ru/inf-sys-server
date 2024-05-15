@@ -5,7 +5,6 @@ import lombok.Builder;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Set;
 
 @Builder
