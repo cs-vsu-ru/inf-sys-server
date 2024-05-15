@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.employee.adapter.rest.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import vsu.cs.is.infsysserver.security.entity.temp.Role;
 
 import java.util.Date;
 import java.util.Set;
@@ -37,6 +38,8 @@ public record EmployeeResponse(
         @Schema(description = "Список специальностей")
         Set<String> specialities,
         @Schema(description = "Проводит ли занятия", example = "false")
-        Boolean hasLessons
+        Boolean hasLessons,
+        @Schema(description = "Роль пользователя", example = "MODERATOR")
+        Role role
 ) {
 }

@@ -3,10 +3,12 @@ package vsu.cs.is.infsysserver.employee;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.employee.adapter.EmployeeMapper;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.EmployeeRepository;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
+import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.CreateEmptyLessonsRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
@@ -25,7 +27,7 @@ public class EmployeeService {
     private final UserRepository userRepository;
     private final EmployeeMapper employeeMapper;
 
-    private final String parserUrl = "";
+    //private final String parserUrl = "";
 
     public List<EmployeeResponse> getAllEmployees() {
         return employeeRepository.findAll().stream().map(employeeMapper::map).toList();
@@ -56,6 +58,19 @@ public class EmployeeService {
             //todo: call parser to create lessons
         }
         return employeeMapper.map(employee);
+    }
+
+    private void createEmptyLessons(Employee employee) {
+        //CreateEmptyLessonsRequest request = new CreateEmptyLessonsRequest();
+//        request.setEmployeeId(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Host", "parser_api:8000");
+        headers.add("Content-Type", "application/json");
+
+//        HttpEntity<EmployeeRequest> entity = new HttpEntity<>(request, headers);
+//
+//        ResponseEntity<Void> response = restTemplate.postForEntity(url, entity, Void.class);
     }
 
     @Transactional
