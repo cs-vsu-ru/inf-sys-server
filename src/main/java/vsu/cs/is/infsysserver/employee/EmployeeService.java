@@ -11,6 +11,9 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
+import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.util.List;
 
@@ -19,7 +22,10 @@ import java.util.List;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
     private final EmployeeMapper employeeMapper;
+
+    private final String parserUrl = "";
 
     public List<EmployeeResponse> getAllEmployees() {
         return employeeRepository.findAll().stream().map(employeeMapper::map).toList();
@@ -38,8 +44,12 @@ public class EmployeeService {
     }
 
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
+        User user = UserMapper.mapEmployeeCreateRequestToUser(employeeCreateRequest);
+        user = userRepository.save(user);
+
         Employee employee = employeeMapper.map(employeeCreateRequest);
         employee.setLastModifiedBy(findByLoginOrThrow(authUserLogin).getUser());
+        employee.setUser(user);
         employee = employeeRepository.save(employee);
 
         if (employee.isHasLessons()) {
