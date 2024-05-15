@@ -64,8 +64,11 @@ public class Employee implements Serializable {
     private Date lastModifiedAt;
 
     public void updateFromRequest(EmployeeUpdateRequest request, User updater) {
-        user.setFirstName(request.firstName());
+        this.user.setFirstName(request.firstName());
         this.user.setLastName(request.lastName());
+        this.user.setEmail(request.email());
+        this.user.setLogin(request.login());
+        this.user.setRole(request.role());
         this.patronymic = request.patronymic();
         this.post = request.post();
         this.academicTitle = request.academicTitle();
