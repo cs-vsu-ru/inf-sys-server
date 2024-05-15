@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -25,9 +26,9 @@ public record EmployeeResponse(
         @Schema(description = "Ученая степень", example = "Кандидат наук")
         String academicDegree,
         @Schema(description = "Дата начала опыта", example = "2005-01-01")
-        Date experience,
+        LocalDate experience,
         @Schema(description = "Дата начала профессионального опыта", example = "2010-01-01")
-        Date professionalExperience,
+        LocalDate professionalExperience,
         @Schema(description = "Электронная почта", example = "kudinov_im@cs.vsu.ru")
         String email,
         @Schema(description = "Ссылка на фото", example = "https://i.imgur.com/fn32s4s.jpeg")

@@ -21,6 +21,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRe
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -46,12 +47,13 @@ public class Employee implements Serializable {
     @JoinColumn(unique = true)
     private User user;
 
+    private String imageUrl;
     private String patronymic;
     private String post;
     private String academicTitle;
     private String academicDegree;
-    private Date experience;
-    private Date professionalExperience;
+    private LocalDate experience;
+    private LocalDate professionalExperience;
     private String plan;
     private boolean hasLessons;
 

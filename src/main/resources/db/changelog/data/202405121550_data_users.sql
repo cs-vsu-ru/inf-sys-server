@@ -16,6 +16,6 @@ VALUES ('koval@sc.vsu.ru', 'Андрей', 'Коваль', 'koval', '$2a$10$heH0
 INSERT INTO users (email, first_name, last_name, login, password, role)
 VALUES ('mal_and@inbox.ru', 'Андрей', 'Малыхин', 'malihin', '$2a$10$g1kLZnVxJ7x7VtrRLmBYpuUm5sHSIxy6Kttwv7D4e69aK1ck.QCkm', null);
 INSERT INTO users (email, first_name, last_name, login, password, role)
-VALUES ('', 'Кудинов', 'Иван', 'kudinov_i_m', '$2a$10$h0FAhz1bvt5DmK/ZeZfzLeapGK6qJKpuPgt7nxXegepYhZwlzN8yy', 'ADMIN');
+VALUES ('kudipkin@boris.vsu', 'Кудинов', 'Иван', 'kudinov_i_m', '$2a$10$h0FAhz1bvt5DmK/ZeZfzLeapGK6qJKpuPgt7nxXegepYhZwlzN8yy', 'ADMIN');
 INSERT INTO users (email, first_name, last_name, login, password, role)
 VALUES ('stazaev@mail.ru', 'Стазаев', 'Даниил', 'stazaev_d_s', '$2a$10$m5TyJ9Tg2Hd7t20V8i.1U./9OqoQiFdnqd3Zf5vxG0up7i7CQ9c8q', 'USER');
