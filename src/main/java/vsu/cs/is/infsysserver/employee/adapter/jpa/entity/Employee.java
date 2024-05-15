@@ -44,7 +44,6 @@ public class Employee implements Serializable {
     private String academicDegree;
     private Date experience;
     private Date professionalExperience;
-    private Date dateOfBirth;
     private String plan;
     private boolean hasLessons;
 
@@ -65,7 +64,6 @@ public class Employee implements Serializable {
         this.academicDegree = request.academicDegree();
         this.experience = request.experience();
         this.professionalExperience = request.professionalExperience();
-        this.dateOfBirth = request.dateOfBirth();
         this.plan = request.plan();
         this.hasLessons = request.hasLessons();
         this.lastModifiedBy = updater;

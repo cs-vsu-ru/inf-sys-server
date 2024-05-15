@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
@@ -101,7 +102,9 @@ public interface EmployeeApi {
     })
     @Operation(summary = "Создает сотрудника с переданными параметрами")
     ResponseEntity<EmployeeResponse> createEmployee(
-            @Parameter(description = "Данные создаваемого сотрудника") EmployeeCreateRequest employeeCreateRequest);
+            @Parameter(description = "Данные создаваемого сотрудника") EmployeeCreateRequest employeeCreateRequest,
+            @Parameter(description = "Аутентифицированный пользователь. " +
+                    "Не передается клиентом, а получется в контроллере на сервере") String authUserLogin);
 
     @ApiResponses(value = {
             @ApiResponse(
@@ -130,8 +133,7 @@ public interface EmployeeApi {
             @Parameter(description = "ID обновляемого сотрудника") Long id,
             @Parameter(description = "Данные для обновления") EmployeeUpdateRequest employeeUpdateRequest,
             @Parameter(description = "Аутентифицированный пользователь. " +
-                    "Не передается клиентом, а получется в контроллере на сервере")
-            String authUserEmail);
+                    "Не передается клиентом, а получется в контроллере на сервере") String authUserLogin);
 
     @ApiResponses(value = {
             @ApiResponse(

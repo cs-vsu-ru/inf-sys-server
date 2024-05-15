@@ -50,8 +50,10 @@ public class EmployeeController implements EmployeeApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<EmployeeResponse> createEmployee(@RequestBody EmployeeCreateRequest employeeCreateRequest) {
-        return ok(employeeService.createEmployee(employeeCreateRequest));
+    public ResponseEntity<EmployeeResponse> createEmployee(
+            @RequestBody EmployeeCreateRequest employeeCreateRequest,
+            @AuthenticationPrincipal String authUserEmail) {
+        return ok(employeeService.createEmployee(employeeCreateRequest, authUserEmail));
     }
 
     @Override

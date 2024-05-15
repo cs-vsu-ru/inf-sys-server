@@ -28,6 +28,8 @@ public record EmployeeAdminResponse(
         Date professionalExperience,
         @Schema(description = "Электронная почта", example = "kudinov_im@cs.vsu.ru")
         String email,
+        @Schema(description = "Логин пользователя", example = "kudinov_i_m")
+        String login,
         @Schema(description = "Ссылка на фото", example = "https://i.imgur.com/fn32s4s.jpeg")
         String imageUrl,
         @Schema(description = "Ссылка на индивидуальный план работы преподавателя", example

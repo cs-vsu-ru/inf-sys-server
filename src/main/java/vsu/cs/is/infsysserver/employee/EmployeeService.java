@@ -11,7 +11,6 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
-import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.util.List;
 
@@ -34,13 +33,14 @@ public class EmployeeService {
         return employeeMapper.mapAdmin(findByIdOrThrow(id));
     }
 
-    public EmployeeResponse getEmployeeByEmail(String email) {
-        return employeeMapper.map(findByUserEmailOrThrow(email));
+    public EmployeeResponse getEmployeeByLogin(String login) {
+        return employeeMapper.map(findByLoginOrThrow(login));
     }
 
-    public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest) {
-        Employee employee = employeeRepository.save(
-                employeeMapper.map(employeeCreateRequest));
+    public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
+        Employee employee = employeeMapper.map(employeeCreateRequest);
+        employee.setLastModifiedBy(findByLoginOrThrow(authUserLogin).getUser());
+        employee = employeeRepository.save(employee);
 
         if (employee.isHasLessons()) {
             //todo: call parser to create lessons
@@ -50,10 +50,10 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
-                                                    String updaterEmail) {
+                                                    String authUserLogin) {
         //todo: handle parser lessons if hasLessons changed
         Employee employee = findByIdOrThrow(id);
-        employee.updateFromRequest(employeeUpdateRequest, findByUserEmailOrThrow(updaterEmail).getUser());
+        employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
         return employeeMapper.mapAdmin(
                 employeeRepository.save(employee));
     }
@@ -68,9 +68,9 @@ public class EmployeeService {
         );
     }
 
-    private Employee findByUserEmailOrThrow(String email) {
-        return employeeRepository.findByUserEmail(email).orElseThrow(
-                () -> new EntityNotFoundException("По email: " + email + " не найдено ни одного сотрудника")
+    private Employee findByLoginOrThrow(String login) {
+        return employeeRepository.findByUserLogin(login).orElseThrow(
+                () -> new EntityNotFoundException("По логину: " + login + " не найдено ни одного сотрудника")
         );
     }
 }
