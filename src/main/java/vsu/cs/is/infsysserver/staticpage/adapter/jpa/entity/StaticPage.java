@@ -1,11 +1,6 @@
 package vsu.cs.is.infsysserver.staticpage.adapter.jpa.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,16 +26,22 @@ public class StaticPage {
     )
     private Long id;
 
+    @Column(columnDefinition="TEXT")
     private String contentAbout;
 
+    @Column(columnDefinition="TEXT")
     private String contentEducation;
 
+    @Column(columnDefinition="TEXT")
     private String contentStudents;
 
+    @Column(columnDefinition="TEXT")
     private String contentPartners;
 
+    @Column(columnDefinition="TEXT")
     private String contentConfidential;
 
+    @Column(columnDefinition="TEXT")
     private String contentContacts;
 
     public void updateFromRequest(StaticPageUpdateRequest request) {
