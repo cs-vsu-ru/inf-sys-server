@@ -59,7 +59,7 @@ public class EmployeeService {
         employee = employeeRepository.save(employee);
 
         if (employee.isHasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+//            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
         }
         return employeeMapper.map(employee);
     }
@@ -70,9 +70,9 @@ public class EmployeeService {
                                                     String authUserLogin) {
         Employee employee = findByIdOrThrow(id);
         if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+//            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
         } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+//            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
         }
         employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
         return employeeMapper.mapAdmin(
