@@ -1,6 +1,12 @@
 package vsu.cs.is.infsysserver.staticpage.adapter.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +19,7 @@ import vsu.cs.is.infsysserver.staticpage.adapter.rest.dto.request.StaticPageUpda
 @NoArgsConstructor
 @Table(name = "static_pages")
 @Entity
+@SuppressWarnings("")
 public class StaticPage {
 
     @Id
@@ -26,22 +33,22 @@ public class StaticPage {
     )
     private Long id;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentAbout;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentEducation;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentStudents;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentPartners;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentConfidential;
 
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String contentContacts;
 
     public void updateFromRequest(StaticPageUpdateRequest request) {
