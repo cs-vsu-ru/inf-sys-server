@@ -1,5 +1,6 @@
 package vsu.cs.is.infsysserver.staticpage.adapter.jpa.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +19,7 @@ import vsu.cs.is.infsysserver.staticpage.adapter.rest.dto.request.StaticPageUpda
 @NoArgsConstructor
 @Table(name = "static_pages")
 @Entity
+@SuppressWarnings("")
 public class StaticPage {
 
     @Id
@@ -31,16 +33,22 @@ public class StaticPage {
     )
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String contentAbout;
 
+    @Column(columnDefinition = "TEXT")
     private String contentEducation;
 
+    @Column(columnDefinition = "TEXT")
     private String contentStudents;
 
+    @Column(columnDefinition = "TEXT")
     private String contentPartners;
 
+    @Column(columnDefinition = "TEXT")
     private String contentConfidential;
 
+    @Column(columnDefinition = "TEXT")
     private String contentContacts;
 
     public void updateFromRequest(StaticPageUpdateRequest request) {
