@@ -13,6 +13,8 @@
         <summary><strong>Список обязательных переменных окружения</strong></summary>
         <ul>
             <li><pre>POSTGRES_PASSWORD</pre></li>
+            <li><pre>SERVER_PORT</pre></li>
+            <li><pre>BASE_FILES_FOLDER</pre></li>
         </ul>
     </details>
     <details>
