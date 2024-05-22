@@ -16,5 +16,6 @@ server:
   port: ${SERVER_PORT}
 
 application:
-  server-url: 'http://localhost:${SERVER_PORT}'
-  base-files-folder: ${BASE_FILES_FOLDER}
+  upload:
+    server-url: 'http://localhost:${SERVER_PORT}'
+    base-files-folder: ${BASE_FILES_FOLDER}

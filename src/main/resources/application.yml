@@ -9,8 +9,9 @@ spring:
     database: postgresql
 
 application:
-  server-url: 'http://cs.vsu.ru:80/is/api/'
-  base-files-folder: 'files/'
+  upload:
+    server-url: 'http://cs.vsu.ru:80/is/api/'
+    base-files-folder: 'files/'
   security:
     jwt:
       secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
