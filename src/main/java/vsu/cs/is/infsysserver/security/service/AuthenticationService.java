@@ -55,8 +55,17 @@ public class AuthenticationService {
 
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
-        if (!ldapAuthentication.isConnectionSuccess(request)) {
+        var optionalUser = repository.findByLogin(request.getUsername());
+
+        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
+        ) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+        }
+
+        var user = optionalUser.get();
+        if (user.getPassword().isEmpty() || passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            String password = passwordEncoder.encode(request.getPassword());
+            repository.savePasswordByLogin(user.getLogin(), password);
         }
 
         authenticationManager.authenticate(
@@ -65,8 +74,6 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = repository.findByLogin(request.getUsername())
-                .orElseThrow();
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);
 //        var refreshToken = jwtService.generateRefreshToken(userDetail);
