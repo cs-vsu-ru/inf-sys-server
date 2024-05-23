@@ -54,7 +54,7 @@ public class EmployeeService {
         user = userRepository.save(user);
 
         Employee employee = employeeMapper.map(employeeCreateRequest);
-        employee.setLastModifiedBy(findByLoginOrThrow(authUserLogin).getUser());
+        employee.setCreatedBy(findByLoginOrThrow(authUserLogin).getUser());
         employee.setUser(user);
         employee = employeeRepository.save(employee);
 

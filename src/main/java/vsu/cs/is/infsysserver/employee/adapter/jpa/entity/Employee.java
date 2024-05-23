@@ -57,6 +57,9 @@ public class Employee implements Serializable {
     private String plan;
     private boolean hasLessons;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
     @CreationTimestamp(source = SourceType.DB)
     private Date createdAt;
 
