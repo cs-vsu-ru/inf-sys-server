@@ -49,6 +49,7 @@ public class EmployeeService {
         return employeeMapper.map(findByLoginOrThrow(login));
     }
 
+    @Transactional
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
         User user = UserMapper.mapEmployeeCreateRequestToUser(employeeCreateRequest);
         user = userRepository.save(user);
