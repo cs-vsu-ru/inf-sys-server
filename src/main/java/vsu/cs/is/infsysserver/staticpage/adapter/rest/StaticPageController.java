@@ -3,7 +3,6 @@ package vsu.cs.is.infsysserver.staticpage.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/api/static-pages")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
 public class StaticPageController implements StaticPageApi {
 
     private final StaticPageService staticPageService;

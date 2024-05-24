@@ -3,7 +3,6 @@ package vsu.cs.is.infsysserver.employee.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -26,7 +25,6 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
-@CrossOrigin
 public class EmployeeController implements EmployeeApi {
     private final EmployeeService employeeService;
 
