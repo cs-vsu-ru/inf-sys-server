@@ -73,7 +73,7 @@ public class Employee implements Serializable {
         this.user.setLastName(request.lastName());
         this.user.setEmail(request.email());
         this.user.setLogin(request.login());
-        this.user.setRole(request.role());
+        this.user.setRole(request.mainRole());
         this.patronymic = request.patronymic();
         this.post = request.post();
         this.academicTitle = request.academicTitle();

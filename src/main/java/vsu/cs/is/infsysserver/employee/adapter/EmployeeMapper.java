@@ -13,14 +13,14 @@ public interface EmployeeMapper {
     @Mapping(source = "user.firstName", target = "firstName")
     @Mapping(source = "user.lastName", target = "lastName")
     @Mapping(source = "user.email", target = "email")
-    @Mapping(source = "user.role", target = "role")
+    @Mapping(source = "user.role", target = "mainRole")
     EmployeeResponse map(Employee employee);
 
     @Mapping(source = "user.firstName", target = "firstName")
     @Mapping(source = "user.lastName", target = "lastName")
     @Mapping(source = "user.email", target = "email")
     @Mapping(source = "user.login", target = "login")
-    @Mapping(source = "user.role", target = "role")
+    @Mapping(source = "user.role", target = "mainRole")
     EmployeeAdminResponse mapAdmin(Employee employee);
 
     Employee map(EmployeeCreateRequest employeeCreateRequest);
