@@ -35,6 +35,6 @@ public record EmployeeCreateRequest(
         @Schema(description = "Проводит ли занятия", example = "false")
         Boolean hasLessons,
         @Schema(description = "Роль пользователя", example = "MODERATOR")
-        Role role
+        Role mainRole
 ) {
 }

@@ -57,6 +57,9 @@ public class Employee implements Serializable {
     private String plan;
     private boolean hasLessons;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
     @CreationTimestamp(source = SourceType.DB)
     private Date createdAt;
 
@@ -70,7 +73,7 @@ public class Employee implements Serializable {
         this.user.setLastName(request.lastName());
         this.user.setEmail(request.email());
         this.user.setLogin(request.login());
-        this.user.setRole(request.role());
+        this.user.setRole(request.mainRole());
         this.patronymic = request.patronymic();
         this.post = request.post();
         this.academicTitle = request.academicTitle();

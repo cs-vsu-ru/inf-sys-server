@@ -23,5 +23,6 @@ create table employees
     post                    varchar(255),
     professional_experience date,
     last_modified_at        timestamp(6),
-    last_modified_by_id     bigint  not null
+    last_modified_by_id     bigint  not null,
+    created_by_id           bigint  not null
 );

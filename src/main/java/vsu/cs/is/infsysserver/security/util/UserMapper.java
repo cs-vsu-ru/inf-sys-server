@@ -23,7 +23,7 @@ public final class UserMapper {
                 .login(request.login())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
-                .role(request.role())
+                .role(request.mainRole())
                 .build();
     }
 }
