@@ -13,4 +13,9 @@ spring:
       ddl-auto: validate
 
 server:
-  port: 3030
+  port: ${SERVER_PORT}
+
+application:
+  upload:
+    server-url: 'http://localhost:${SERVER_PORT}'
+    base-files-folder: ${BASE_FILES_FOLDER}
