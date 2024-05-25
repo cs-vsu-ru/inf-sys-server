@@ -1,0 +1,17 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://postgresql:5432/inf-sys-server
+    username: inf-sys-server
+    password: ${POSTGRES_PASSWORD}
+  liquibase:
+    contexts: local
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
