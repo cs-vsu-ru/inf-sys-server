@@ -1,0 +1,71 @@
+version: '3.5'
+
+services:
+
+  postgresql:
+    image: 'postgres:16-alpine'
+    container_name: postgresql
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+    environment:
+      - POSTGRES_USER=cs-pr-development
+      - POSTGRES_PASSWORD=${POSTGRES_ADMIN_PASSWORD}
+      - POSTGRES_DB=postgres
+      - POSTGRES_SERVER_PASSWORD
+      - POSTGRES_PARSER_PASSWORD
+    restart: always
+    networks:
+      - backend-db-network
+
+  redis:
+    image: redis:7.0.11
+    networks:
+      - backend-redis-network
+    restart: unless-stopped
+
+  inf-sys-server:
+    # image: 'ghcr.io/cs-vsu-ru/inf-sys-server:latest'
+    build:
+      context: ../
+    container_name: inf-sys-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - POSTGRES_PASSWORD=${POSTGRES_SERVER_PASSWORD}
+      - JWT_SECRET_KEY
+    depends_on:
+      - postgresql
+    volumes:
+      - files-volume:/api/files
+    networks:
+      - backend-db-network
+
+  inf-sys-parser:
+    # image: ghcr.io/cs-vsu-ru/inf-sys-parser:latest
+    build:
+      context: ../../inf-sys-parser
+    container_name: inf-sys-parser
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PARSER_PASSWORD}
+    depends_on:
+      - postgresql
+      - redis
+    networks:
+      - backend-db-network
+      - backend-redis-network
+
+volumes:
+  postgres-data:
+    name: postgres-data
+  files-volume:
+    name: files-volume
+
+networks:
+  backend-db-network: { }
+  backend-redis-network: { }
