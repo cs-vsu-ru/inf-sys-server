@@ -20,3 +20,5 @@ psql -v server_password=$POSTGRES_SERVER_PASSWORD -v parser_password=$POSTGRES_P
     GRANT ALL PRIVILEGES ON SCHEMA "public" TO "inf-sys-parser";
     GRANT ALL PRIVILEGES ON SCHEMA "public" TO "cs-pr-development";
 EOSQL
+
+# This file must have LF coding only
