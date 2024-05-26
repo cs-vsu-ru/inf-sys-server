@@ -7,6 +7,9 @@ services:
     container_name: postgresql
     ports:
       - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 5s
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
@@ -22,43 +25,53 @@ services:
 
   redis:
     image: redis:7.0.11
+    container_name: redis
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli --raw incr ping" ]
+      interval: 5s
     networks:
       - backend-redis-network
     restart: unless-stopped
 
   inf-sys-server:
-    # image: 'ghcr.io/cs-vsu-ru/inf-sys-server:latest'
-    build:
-      context: ../
+    image: 'ghcr.io/cs-vsu-ru/inf-sys-server:latest'
     container_name: inf-sys-server
     ports:
       - "8080:8080"
+    healthcheck:
+      test: curl -f http://inf-sys-server:8080/actuator/health
+      interval: 5s
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - POSTGRES_PASSWORD=${POSTGRES_SERVER_PASSWORD}
       - JWT_SECRET_KEY
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
     volumes:
       - files-volume:/api/files
     networks:
       - backend-db-network
+      - backend-services-network
 
   inf-sys-parser:
-    # image: ghcr.io/cs-vsu-ru/inf-sys-parser:latest
-    build:
-      context: ../../inf-sys-parser
+    image: ghcr.io/cs-vsu-ru/inf-sys-parser:latest
     container_name: inf-sys-parser
     ports:
       - "8000:8000"
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PARSER_PASSWORD}
     depends_on:
-      - postgresql
-      - redis
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      inf-sys-server:
+        condition: service_healthy
     networks:
       - backend-db-network
       - backend-redis-network
+      - backend-services-network
 
 volumes:
   postgres-data:
@@ -69,3 +82,4 @@ volumes:
 networks:
   backend-db-network: { }
   backend-redis-network: { }
+  backend-services-network: { }
