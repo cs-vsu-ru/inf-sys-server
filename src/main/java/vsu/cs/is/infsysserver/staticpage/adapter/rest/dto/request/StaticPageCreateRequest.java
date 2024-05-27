@@ -9,18 +9,22 @@ public record StaticPageCreateRequest(
         @Schema(description = "Страница Образование", example = "\"<p><strong>Заведующий кафедрой </strong>")
         String contentEducation,
         @Schema(
-                description = "Страница Студентам и выпускникам",
+                description = "Страница Студентам",
                 example = "\"<p><strong>Заведующий кафедрой </strong>"
         )
         String contentStudents,
-        @Schema(description = "Страница Партнеры", example = "\"<p><strong>Заведующий кафедрой </strong>")
-        String contentPartners,
+        @Schema(description = "Страница Важное", example = "\"<p><strong>Заведующий кафедрой </strong>")
+        String contentImportant,
+        @Schema(description = "Страница Консультации и экзамены", example = "\"<p><strong>Заведующий кафедрой </strong>")
+        String contentExams,
         @Schema(
                 description = "Страница Политика конфиденциальности",
                 example = "\"<p><strong>Заведующий кафедрой </strong>"
         )
         String contentConfidential,
         @Schema(description = "Страница Адреса и контакты", example = "\"<p><strong>Заведующий кафедрой </strong>")
-        String contentContacts
+        String contentContacts,
+        @Schema(description = "Страница Разное", example = "\"<p><strong>Заведующий кафедрой </strong>")
+        String contentMiscellaneous
 ) {
 }
