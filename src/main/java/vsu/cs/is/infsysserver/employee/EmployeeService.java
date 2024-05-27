@@ -70,12 +70,15 @@ public class EmployeeService {
     public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
                                                     String authUserLogin) {
         Employee employee = findByIdOrThrow(id);
-        if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
+        if (!employeeUpdateRequest.isPlanUpdate()) {
+            if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
 //            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
-        } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
+            } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
 //            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
-        }
-        employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
+            }
+            employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
+        } else employee.setPlan(employeeUpdateRequest.plan());
+
         return employeeMapper.mapAdmin(
                 employeeRepository.save(employee));
     }
