@@ -18,7 +18,7 @@ public record StaticPageUpdateRequest(
         String contentStudents,
         @Schema(description = "Страница Важное", example = "\"<p><strong>Заведующий кафедрой </strong>")
         String contentImportant,
-        @Schema(description = "Страница Консультации и экзамены", example = "\"<p><strong>Заведующий кафедрой </strong>")
+        @Schema(description = "Страница Консультации и экзамены", example = "\"<p><strong>Заведующий кафедрой")
         String contentExams,
         @Schema(
                 description = "Страница Политика конфиденциальности",
