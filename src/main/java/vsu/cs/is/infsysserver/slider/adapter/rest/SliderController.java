@@ -43,7 +43,7 @@ public class SliderController implements SliderApi {
     @Override
     @PostMapping
     public ResponseEntity<SliderElementResponse> createSliderElement(
-            SliderElementCreateRequest sliderElementCreateRequest
+            @RequestBody SliderElementCreateRequest sliderElementCreateRequest
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

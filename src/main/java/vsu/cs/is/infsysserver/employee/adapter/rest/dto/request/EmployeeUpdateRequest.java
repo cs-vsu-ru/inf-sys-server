@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public record EmployeeUpdateRequest(
 
@@ -39,4 +41,9 @@ public record EmployeeUpdateRequest(
         @Schema(description = "Роль пользователя", example = "MODERATOR")
         Role mainRole
 ) {
+        public boolean isPlanUpdate() {
+                return Stream.of(firstName, lastName, patronymic, academicTitle, academicDegree,
+                        experience, professionalExperience, email, login, imageUrl, post, hasLessons, mainRole)
+                        .allMatch(Objects::isNull) && plan != null;
+        }
 }

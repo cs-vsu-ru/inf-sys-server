@@ -3,38 +3,34 @@
 --changeset tukitoki:202405121600_data_employees context:local
 
 -- employees data
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 1, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'https://www.vsu.ru/ru/persons/photo.php?p=24431', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 2, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', 'http://www.cs.vsu.ru:80/is/api/files/8d246826-b3df-4b4c-b338-5be4f214972dДесятирикова.jpg', 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/4ecf18f1-c0a3-47a1-bc71-79ade98c1da6Зуев.jpg', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 3, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/ccddd7f3-a456-4661-b737-e48faad4ccbeЕрмаков.jpg', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 4, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/4ecf18f1-c0a3-47a1-bc71-79ade98c1da6Зуев.jpg', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 5, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/c1d34efa-560d-4f27-b0f2-bc0fd5dc65feКоваль.jpg', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 6, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/6c3616e4-a0f2-42bf-84a8-325546bb9a87Малыхин.jpg', '2023-06-07 10:25', 1, 1);
-INSERT INTO employees(has_lessons,
-                      created_at, user_id, academic_degree, academic_title, experience,
-                      patronymic, plan, post, professional_experience, image_url, last_modified_at, last_modified_by_id, created_by_id)
-VALUES (true, '2023-06-07 10:25', 7, 'Кандидат наук', 'Доцент', '2000-09-01',
-        'Николаевич', null, 'Заведующий кафедрой', '2005-09-01', 'http://www.cs.vsu.ru:80/is/api/files/83be4eb3-4916-400e-8fe5-48e4417fcb4aМахортов.jpg', '2023-06-07 10:25', 1, 1);
+
+INSERT INTO employees(id, patronymic, post, academic_title, academic_degree, experience, professional_experience, user_id,
+                       plan, image_url, created_by_id, created_at, last_modified_by_id, last_modified_at, has_lessons)
+
+VALUES (1,'Николаевич','Заведующий кафедрой','Доцент','Кандидат наук','2000-09-01','2005-09-01',1,NULL,'https://www.vsu.ru/ru/persons/photo.php?p=24431',1,NULL,1,'2024-04-27 13:51:51',true),
+(31,'Николаевна','Профессор','Профессор','Доктор наук','1988-01-01','1987-01-01',31,'http://www.cs.vsu.ru:80/is/api/files/b1fc4642-7201-439d-9a99-c9b6dba98383Десятирикова.pdf','http://www.cs.vsu.ru:80/is/api/files/8d246826-b3df-4b4c-b338-5be4f214972dДесятирикова.jpg',1,'2023-06-06 17:38:07',1,'2023-06-06 17:45:38',true),
+(32,'Викторович','Старший преподаватель','','','1995-01-01','2017-09-01',32,'http://www.cs.vsu.ru:80/is/api/files/d9be07b7-6454-4835-bb27-589c07511109Ермаков.pdf','http://www.cs.vsu.ru:80/is/api/files/ccddd7f3-a456-4661-b737-e48faad4ccbeЕрмаков.jpg',1,'2023-06-06 17:40:21',1,'2023-06-30 19:17:24',true),
+(33,'Алексеевич','Доцент','без ученого звания','Кандидат наук','1984-01-01','2012-09-01',33,'http://www.cs.vsu.ru:80/is/api/files/52d649cf-65dc-4834-962c-72fbec74f396Зуев.pdf','http://www.cs.vsu.ru:80/is/api/files/4ecf18f1-c0a3-47a1-bc71-79ade98c1da6Зуев.jpg',1,'2023-06-06 17:43:25',1,'2023-07-01 11:06:44',true),
+(34,'Сергеевич','Старший преподаватель','','','1989-01-01','1996-09-01',34,'http://www.cs.vsu.ru:80/is/api/files/421e75c1-3be2-4392-a80d-b528534d900bКоваль.pdf','http://www.cs.vsu.ru:80/is/api/files/c1d34efa-560d-4f27-b0f2-bc0fd5dc65feКоваль.jpg',1,'2023-06-06 17:48:18',1,'2023-07-05 13:18:28',true),
+(35,'Юрьевич','Старший преподаватель','без ученого звания','кандидат наук','2013-01-01','2014-09-01',35,'http://www.cs.vsu.ru:80/is/api/files/011e67da-0129-48db-82f2-dfe744c85f9cМалыхин.pdf','http://www.cs.vsu.ru:80/is/api/files/6c3616e4-a0f2-42bf-84a8-325546bb9a87Малыхин.jpg',1,'2023-06-07 10:52:13',1,'2023-06-07 10:52:13',true),
+(36,'Дмитриевич','Профессор ','Доцент','Доктор наук','1981-01-01','1988-09-01',36,'http://www.cs.vsu.ru:80/is/api/files/5328259a-eb3f-4a29-a10a-e416c606d3d8Махортов.pdf','http://www.cs.vsu.ru:80/is/api/files/83be4eb3-4916-400e-8fe5-48e4417fcb4aМахортов.jpg',1,'2023-06-07 10:55:08',1,'2023-06-07 10:55:08',true),
+(37,'Вячеславовна','Ассистент','','','0213-01-01','2013-09-01',37,'http://www.cs.vsu.ru:80/is/api/files/f74857a6-2fb7-4d53-84e8-7a8f82085746Попова.pdf','http://www.cs.vsu.ru:80/is/api/files/26122305-2f4d-4b1a-a7c2-24b785cd10f6Попова.jpg',1,'2023-06-07 10:57:25',1,'2024-05-08 14:28:15',true),
+(38,'Юрьевич','Профессор','Профессор','доктор наук','1994-01-01','1994-01-01',38,'http://www.cs.vsu.ru:80/is/api/files/8d778da2-20ac-465e-ba84-5cfa9f2e4c16Савинков.pdf','http://www.cs.vsu.ru:80/is/api/files/9068146b-91fd-412e-9fff-2e419451b390Савинков.jpg',1,'2023-06-07 10:59:44',1,'2023-09-13 10:57:32',true),
+(39,'Сергеевич','Доцент','Доцент','Кандидат наук','2008-01-01','2008-09-01',39,'http://www.cs.vsu.ru:80/is/api/files/2ee85819-8633-4367-8170-a42a07254b24Самодуров.pdf','http://www.cs.vsu.ru:80/is/api/files/1c89d398-18d7-4259-828b-e653de71e011Самодуров.jpg',1,'2023-06-07 11:02:08',1,'2023-06-07 11:02:08',true),
+(40,'Викторович','Старший преподаватель','без ученого звания','Кандидат наук','2006-01-01','2015-09-01',40,'http://www.cs.vsu.ru:80/is/api/files/6768e2ac-d8f2-4e45-9ef7-be3eef0ccfa9Стромов.pdf','http://www.cs.vsu.ru:80/is/api/files/60485e0d-d65d-4e02-8bb3-01ec5b0df3c1Стромов.jpg',1,'2023-06-07 11:04:13',1,'2023-06-30 21:10:20',true),
+(41,'Васильевич','Доцент','Доцент','Кандидат наук','1995-01-01','1995-09-01',41,'http://www.cs.vsu.ru:80/is/api/files/3ca372b0-f099-47a6-b008-e439a70d8becСычев.pdf','http://www.cs.vsu.ru:80/is/api/files/3839b32a-9861-40f3-9711-d8f9edc462edСычев.jpg',1,'2023-06-07 11:05:52',1,'2023-06-07 11:05:52',true),
+(42,'Павлович','Доцент','Доцент','Кандидат наук','1970-01-01','1989-09-01',42,'http://www.cs.vsu.ru:80/is/api/files/3ea57499-3bfe-4ace-a1a5-166abcb90dc2Толстобров.pdf','http://www.cs.vsu.ru:80/is/api/files/a992e8c4-537f-4d39-b501-fe7f8862d837Толстобров.jpg',1,'2023-06-07 11:07:56',1,'2023-06-07 11:07:56',true),
+(43,'Валериевич','Доцент','Доцент','Кандидат наук','1987-01-01','1992-09-01',43,'http://www.cs.vsu.ru:80/is/api/files/f7cc99e4-5d4c-4f18-88cf-c8de1552cb1aФертиков.pdf','http://www.cs.vsu.ru:80/is/api/files/cd9fd440-eb30-4d6c-b351-09368def7597Фертиков.jpg',1,'2023-06-07 11:09:39',1,'2023-06-07 11:09:39',true),
+(44,'Вячеславович','Ассистент','','','2006-01-01','2016-09-01',44,'http://www.cs.vsu.ru:80/is/api/files/8d6ffad2-6674-45f6-ba32-5928f33028c5Черницын.pdf','http://www.cs.vsu.ru:80/is/api/files/28adcf49-09ea-4c59-9c53-4939c4f0f7dfЧерницын.jpg',1,'2023-06-07 11:11:29',1,'2023-06-07 11:11:29',true),
+(45,'Станиславовна','Ведущий инженер','','',NULL,NULL,45,NULL, 'http://www.cs.vsu.ru:80/is/api/files/5c50c30d-87d8-484e-80d6-8828b9af0937Романцова Т.С..jpg',1,'2023-06-07 11:18:28',1,'2023-06-15 11:50:26',true),
+(46,'Александровна','Доцент','Доцент','Кандидат наук','2004-01-01','2006-01-01',46,NULL,'http://www.cs.vsu.ru:80/is/api/files/e8edd57e-73f6-4b97-a4d3-45fc1686849cБорисова А.А.jpg',1,'2023-09-06 17:52:16',1,'2023-09-06 17:52:16',true),
+(47,'Юрьевич','Доцент','','Кандидат наук','2023-01-01',NULL,47,NULL,'http://www.cs.vsu.ru:80/is/api/files/68bb9150-ca35-4e45-bed6-d58896179518Стародубцев ИЮ.jpg',1,'2023-09-06 18:09:02',1,'2023-09-06 18:09:02',true),
+(48,'Александровна','Доцент','','Кандидат наук','2023-01-01','2023-01-01',48,NULL,'http://www.cs.vsu.ru:80/is/api/files/f4785af4-5b1d-4410-b52d-654707797ff3Маковий К.А..jpg',1,'2023-09-06 19:25:27',1,'2023-09-16 15:35:37',true),
+(49,'Олеговна','Ассистент','','','2012-01-01','2022-01-01',49,NULL,'http://www.cs.vsu.ru:80/is/api/files/9f1259ae-f83f-4946-84a2-3754fcae15d4ПодоприхинаЛО.jpg',1,'2023-09-06 19:50:02',1,'2023-09-06 19:50:02',true),
+(50,'Владимирович','Профессор','Профессор','доктор наук',NULL,NULL,50,NULL,'https://i.imgur.com/fn32s4s.jpeg',1,'2023-09-06 20:05:34',1,'2023-09-06 20:05:34',true),
+(51,'Карнельевич','Доцент','Доцент','Кандидат наук',NULL,NULL,51,NULL,'https://i.imgur.com/fn32s4s.jpeg',1,'2023-09-06 20:07:26',1,'2023-09-06 20:07:26',true),
+(52,'Михайлович','','','','2024-04-03','2024-04-03',52,NULL,'http://www.cs.vsu.ru:80/is/api/files/f00682fd-2d2d-4f3e-9dd8-070151f7845bfn32s4s.jpeg',1,'2024-04-03 12:43:17',52,'2024-05-23 00:49:02',false);
+
+SELECT setval('employee_sequence', 52, true);
+
+
