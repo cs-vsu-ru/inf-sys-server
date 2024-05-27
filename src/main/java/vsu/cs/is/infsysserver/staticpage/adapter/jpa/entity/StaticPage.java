@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vsu.cs.is.infsysserver.staticpage.adapter.rest.dto.request.StaticPageUpdateRequest;
 
+import java.util.stream.Stream;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -43,7 +45,10 @@ public class StaticPage {
     private String contentStudents;
 
     @Column(columnDefinition = "TEXT")
-    private String contentPartners;
+    private String contentImportant;
+
+    @Column(columnDefinition = "TEXT")
+    private String contentExams;
 
     @Column(columnDefinition = "TEXT")
     private String contentConfidential;
@@ -51,13 +56,31 @@ public class StaticPage {
     @Column(columnDefinition = "TEXT")
     private String contentContacts;
 
-    public void updateFromRequest(StaticPageUpdateRequest request) {
-        this.contentAbout = request.contentAbout();
-        this.contentEducation = request.contentEducation();
-        this.contentStudents = request.contentStudents();
-        this.contentPartners = request.contentPartners();
-        this.contentConfidential = request.contentConfidential();
-        this.contentContacts = request.contentContacts();
+    @Column(columnDefinition = "TEXT")
+    private String contentMiscellaneous;
 
+    public void updateFromRequest(StaticPageUpdateRequest request) {
+        if (request.isAllFieldsNull()) {
+            Stream.of(contentAbout, contentEducation, contentStudents,
+                    contentImportant, contentConfidential, contentExams, contentContacts,
+                    contentMiscellaneous).map(item -> null);
+        } else {
+            this.contentAbout = request.contentAbout() != null
+                    ? request.contentAbout() : this.contentAbout;
+            this.contentEducation = request.contentEducation() != null
+                    ? request.contentEducation() : this.contentEducation;
+            this.contentStudents = request.contentStudents() != null
+                    ? request.contentStudents() : this.contentStudents;
+            this.contentImportant  = request.contentImportant() != null
+                    ? request.contentImportant() : this.contentImportant;
+            this.contentExams  = request.contentExams() != null
+                    ? request.contentExams() : this.contentExams;
+            this.contentConfidential = request.contentConfidential() != null
+                    ? request.contentConfidential() : this.contentConfidential;
+            this.contentContacts = request.contentContacts() != null
+                    ? request.contentContacts() : this.contentContacts;
+            this.contentMiscellaneous = request.contentMiscellaneous() != null
+                    ? request.contentMiscellaneous() : this.contentMiscellaneous;
+        }
     }
 }

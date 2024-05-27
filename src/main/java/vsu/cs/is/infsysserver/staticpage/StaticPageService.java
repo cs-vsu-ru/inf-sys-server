@@ -40,9 +40,7 @@ public class StaticPageService {
         var staticPage = findByIdOrThrow(id);
         staticPage.updateFromRequest(staticPageUpdateRequest);
 
-        var upadatedStaticPage = staticPageRepository.save(staticPage);
-
-        return staticPageMapper.map(upadatedStaticPage);
+        return staticPageMapper.map(staticPage);
     }
 
     public void deleteStaticPageById(Long id) {

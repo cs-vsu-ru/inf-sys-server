@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
-import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
-import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
 import vsu.cs.is.infsysserver.security.service.AuthenticationService;
 
 import java.io.IOException;
@@ -21,13 +19,6 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
-
-    @Deprecated
-    @PostMapping("/register")
-    // Регистрация идет через создание нового сотрудника
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(service.register(request));
-    }
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
