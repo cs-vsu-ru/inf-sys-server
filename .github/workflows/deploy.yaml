@@ -1,0 +1,12 @@
+name: Redeploy Image on Host
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  publish:
+    runs-on: self-hosted
+
+    steps:
+      - run: touch docker-compose.yaml
