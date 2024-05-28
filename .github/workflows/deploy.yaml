@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  deploy:
     runs-on: self-hosted
     steps:
-      - run: touch docker-compose.yaml
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Execute a sample command
+        run: touch docker-compose.yaml
