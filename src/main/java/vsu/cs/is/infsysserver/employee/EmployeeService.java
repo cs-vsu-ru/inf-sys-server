@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import vsu.cs.is.infsysserver.configuration.properties.ApplicationProperties;
 import vsu.cs.is.infsysserver.employee.adapter.EmployeeMapper;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.EmployeeRepository;
 import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
@@ -30,8 +31,7 @@ public class EmployeeService {
     private final UserRepository userRepository;
     private final EmployeeMapper employeeMapper;
     private final RestTemplate restTemplate;
-
-    private final String parserUrl = "";
+    private final ApplicationProperties properties;
 
     public List<EmployeeResponse> getAllEmployees() {
         return employeeRepository.findAll().stream().map(employeeMapper::map).toList();
@@ -60,7 +60,7 @@ public class EmployeeService {
         employee = employeeRepository.save(employee);
 
         if (employee.isHasLessons()) {
-//            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
         }
         return employeeMapper.map(employee);
     }
@@ -70,15 +70,12 @@ public class EmployeeService {
     public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
                                                     String authUserLogin) {
         Employee employee = findByIdOrThrow(id);
-        if (!employeeUpdateRequest.isPlanUpdate()) {
-            if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
-//            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
-            } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
-//            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
-            }
-            employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
-        } else employee.setPlan(employeeUpdateRequest.plan());
-
+        if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
+            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+        } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
+            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+        }
+        employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
         return employeeMapper.mapAdmin(
                 employeeRepository.save(employee));
     }
@@ -103,7 +100,8 @@ public class EmployeeService {
         HttpEntity<ParserEmployeeRequest> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<Void> response = restTemplate.postForEntity(
-                parserUrl + operation.getUrlPart(), entity, Void.class);
+                properties.services().get("parser").baseUrl() + "api/employees/"
+                        + operation.getUrlPart(), entity, Void.class);
         response.getStatusCode();
     }
 
