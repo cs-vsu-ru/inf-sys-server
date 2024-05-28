@@ -1,4 +1,4 @@
-name: Publish Docker Image to Registry
+name: Redeploy Image on Host
 
 on:
   workflow_dispatch:
