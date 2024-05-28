@@ -1,0 +1,15 @@
+server {
+    listen 80;
+
+    location /is/inf-sys-server/ {
+        proxy_pass http://inf-sys-server:8080/;
+    }
+
+    location /is/inf-sys-parser/ {
+        proxy_pass http://inf-sys-parser:8000/;
+    }
+
+    location /is/files {
+       alias /;
+    }
+}

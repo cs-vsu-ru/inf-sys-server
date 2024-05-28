@@ -34,10 +34,8 @@ services:
     restart: unless-stopped
 
   inf-sys-server:
-    image: 'ghcr.io/cs-vsu-ru/inf-sys-server:latest'
+    image: ghcr.io/cs-vsu-ru/inf-sys-server:latest
     container_name: inf-sys-server
-    ports:
-      - "8080:8080"
     healthcheck:
       test: curl -f http://inf-sys-server:8080/actuator/health
       interval: 5s
@@ -53,12 +51,11 @@ services:
     networks:
       - backend-db-network
       - backend-services-network
+      - nginx-network
 
   inf-sys-parser:
     image: ghcr.io/cs-vsu-ru/inf-sys-parser:latest
     container_name: inf-sys-parser
-    ports:
-      - "8000:8000"
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PARSER_PASSWORD}
     depends_on:
@@ -72,6 +69,24 @@ services:
       - backend-db-network
       - backend-redis-network
       - backend-services-network
+      - nginx-network
+
+  nginx:
+    image: nginx:1.25.5
+    container_name: nginx
+    volumes:
+#      - files_volume:/etc/nginx/html/api/files
+      - ./nginx/crt.pem:/etc/nginx/certs/crt.pem
+      - ./nginx/key.pem:/etc/nginx/certs/key.pem
+      - ./nginx/config.nginx:/etc/nginx/conf.d/default.conf
+    depends_on:
+      inf-sys-server:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - nginx-network
 
 volumes:
   postgres-data:
@@ -83,3 +98,4 @@ networks:
   backend-db-network: { }
   backend-redis-network: { }
   backend-services-network: { }
+  nginx-network: { }
