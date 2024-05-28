@@ -2,9 +2,11 @@ package vsu.cs.is.infsysserver.configuration.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "application.upload")
+import java.util.Map;
+
+@ConfigurationProperties(prefix = "application")
 public record ApplicationProperties(
-        String serverUrl,
-        String baseFilesFolder
+        UploadProperties upload,
+        Map<String, ServiceProperties> services
 ) {
 }

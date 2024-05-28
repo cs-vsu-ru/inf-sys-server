@@ -15,6 +15,7 @@
             <li><pre>POSTGRES_PASSWORD</pre></li>
             <li><pre>SERVER_PORT</pre></li>
             <li><pre>BASE_FILES_FOLDER</pre></li>
+            <li><pre>PARSER_URL</pre></li>
         </ul>
     </details>
     <details>
