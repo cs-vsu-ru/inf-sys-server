@@ -10,7 +10,7 @@ spring:
 
 application:
   upload:
-    server-url: 'http://cs.vsu.ru:80/is/api/'
+    server-url: 'https://cs.vsu.ru:80/is/api/'
     base-files-folder: 'files/'
   security:
     jwt:
@@ -21,3 +21,7 @@ application:
       host: csfs.cs.vsu.ru
       port: 389
       email-host: cs.vsu.ru
+  services:
+    parser:
+      base-url: ${PARSER_URL}
+      # base-url: 'https://cs.vsu.ru/is/inf-sys-parser/'
