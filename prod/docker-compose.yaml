@@ -43,6 +43,7 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - POSTGRES_PASSWORD=${POSTGRES_SERVER_PASSWORD}
       - JWT_SECRET_KEY
+      - PARSER_URL
     depends_on:
       postgresql:
         condition: service_healthy
@@ -50,7 +51,6 @@ services:
       - files-volume:/api/files
     networks:
       - backend-db-network
-      - backend-services-network
       - nginx-network
 
   inf-sys-parser:
@@ -68,7 +68,6 @@ services:
     networks:
       - backend-db-network
       - backend-redis-network
-      - backend-services-network
       - nginx-network
 
   nginx:
@@ -97,5 +96,4 @@ volumes:
 networks:
   backend-db-network: { }
   backend-redis-network: { }
-  backend-services-network: { }
   nginx-network: { }
