@@ -34,7 +34,7 @@ http {
 
         gzip_static on;
 
-        location /is/inf-sys-server/ {
+        location /inf-sys-server/ {
             proxy_pass http://inf-sys-server:8080/;
 
             proxy_redirect off;
@@ -52,7 +52,7 @@ http {
             gzip_types *;
         }
 
-        location /is/inf-sys-parser/ {
+        location /inf-sys-parser/ {
             proxy_pass http://inf-sys-parser:8000/;
 
             proxy_redirect off;
@@ -75,22 +75,9 @@ http {
             try_files $uri /index.html;
         }
 
-        location /is {
-            proxy_pass http://site-web:8080;
-
-            proxy_redirect off;
-            proxy_set_header Host $http_host;
-            proxy_read_timeout 300s;
-            # gzip settings for this location
-            gzip on;
-            gzip_disable "msie6";
-            gzip_vary on;
-            gzip_proxied any;
-            gzip_comp_level 6;
-            gzip_buffers 16 8K;
-            gzip_http_version 1.1;
-            gzip_min_length 256;
-            gzip_types *;
+        location /api/files {
+            alias /etc/nginx/html/api/files;
         }
+
     }
 }

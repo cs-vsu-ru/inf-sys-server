@@ -3,7 +3,7 @@ version: '3.5'
 services:
 
   postgresql:
-    image: ghcr.io/cloudnative-pg/postgresql:16
+    image: mirror.gcr.io/postgres:16
     container_name: postgresql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER" ]
@@ -22,7 +22,7 @@ services:
       - backend-db-network
 
   redis:
-    image: ghcr.io/cs-vsu-ru/inf-sys-redis:latest
+    image: mirror.gcr.io/redis:7.0.11
     container_name: redis
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli --raw incr ping" ]
@@ -56,7 +56,7 @@ services:
     container_name: inf-sys-parser
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PARSER_PASSWORD}
-      - SERVER_URL
+      - SERVER_URL=${SERVER_INSIDE_URL}
     depends_on:
       postgresql:
         condition: service_healthy
@@ -70,18 +70,21 @@ services:
       - nginx-network
 
   nginx:
-    image: ghcr.io/linuxserver/nginx:1.24.0
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
     container_name: nginx
     volumes:
-      #      - files_volume:/etc/nginx/html/api/files
+      - files_volume:/etc/nginx/html/api/files
       - ./nginx/crt.pem:/etc/nginx/certs/crt.pem
       - ./nginx/key.pem:/etc/nginx/certs/key.pem
       - ./nginx/config.nginx:/etc/nginx/conf.d/default.conf
+      - ./log:/var/log/nginx
     depends_on:
       inf-sys-server:
         condition: service_healthy
     ports:
-      - "80:80"
+      #      - "80:80"
       - "443:443"
     networks:
       - nginx-network
