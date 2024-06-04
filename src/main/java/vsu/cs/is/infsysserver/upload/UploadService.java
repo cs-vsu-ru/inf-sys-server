@@ -9,6 +9,7 @@ import vsu.cs.is.infsysserver.exception.GeneralException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -33,6 +34,8 @@ public class UploadService {
             return applicationProperties.upload().serverUrl() + path;
         } catch (IOException ex) {
             LOGGER.severe(ex.getLocalizedMessage());
+
+            LOGGER.severe(Arrays.toString(ex.getStackTrace()));
 
             throw new GeneralException("Не удалось загрузить файл");
         }
