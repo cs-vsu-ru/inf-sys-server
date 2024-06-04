@@ -11,7 +11,7 @@ spring:
 application:
   upload:
     server-url: 'https://cs.vsu.ru:80/is/api/'
-    base-files-folder: 'files/'
+    base-files-folder: ${BASE_FILES_FOLDER}
   security:
     jwt:
       expiration: 86400000 # a day
