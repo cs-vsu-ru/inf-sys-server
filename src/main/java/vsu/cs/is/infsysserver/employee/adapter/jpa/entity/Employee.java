@@ -79,6 +79,7 @@ public class Employee implements Serializable {
         this.academicTitle = request.academicTitle();
         this.academicDegree = request.academicDegree();
         this.experience = request.experience();
+        this.imageUrl = request.imageUrl();
         this.professionalExperience = request.professionalExperience();
         this.plan = request.plan();
         this.hasLessons = request.hasLessons();
