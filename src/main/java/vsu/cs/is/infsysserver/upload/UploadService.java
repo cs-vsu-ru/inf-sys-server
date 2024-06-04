@@ -28,6 +28,7 @@ public class UploadService {
                 + file.getOriginalFilename();
 
         Path path = Path.of(filePath);
+        LOGGER.info(path.toFile().getAbsolutePath());
         try {
             byte[] bytes = file.getBytes();
             Files.write(path, bytes);
