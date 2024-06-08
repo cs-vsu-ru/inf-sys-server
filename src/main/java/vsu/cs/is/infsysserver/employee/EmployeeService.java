@@ -65,17 +65,18 @@ public class EmployeeService {
         return employeeMapper.map(employee);
     }
 
-
     @Transactional
     public EmployeeAdminResponse updateEmployeeById(long id, EmployeeUpdateRequest employeeUpdateRequest,
                                                     String authUserLogin) {
         Employee employee = findByIdOrThrow(id);
-        if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
-        } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
-        }
-        employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
+        if (!employeeUpdateRequest.isPlanUpdate()) {
+            if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
+                doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+            } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
+                doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+            }
+            employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
+        } else employee.setPlan(employeeUpdateRequest.plan());
         return employeeMapper.mapAdmin(
                 employeeRepository.save(employee));
     }
@@ -100,7 +101,7 @@ public class EmployeeService {
         HttpEntity<ParserEmployeeRequest> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<Void> response = restTemplate.postForEntity(
-                properties.services().get("parser").baseUrl() + "api/employees/"
+                properties.services().get("parser").baseUrl() + "/employees/"
                         + operation.getUrlPart(), entity, Void.class);
         response.getStatusCode();
     }
