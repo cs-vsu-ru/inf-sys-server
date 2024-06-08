@@ -49,7 +49,6 @@ public class EmployeeService {
         return employeeMapper.map(findByLoginOrThrow(login));
     }
 
-    @Transactional
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
         User user = UserMapper.mapEmployeeCreateRequestToUser(employeeCreateRequest);
         user = userRepository.save(user);
@@ -82,7 +81,9 @@ public class EmployeeService {
     }
 
     public void deleteEmployeeById(long id) {
-        employeeRepository.delete(findByIdOrThrow(id));
+        Employee employee = findByIdOrThrow(id);
+        doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+        employeeRepository.delete(employee);
     }
 
     private Employee findByIdOrThrow(Long id) {
