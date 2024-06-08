@@ -82,7 +82,9 @@ public class EmployeeService {
 
     public void deleteEmployeeById(long id) {
         Employee employee = findByIdOrThrow(id);
-        doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+        if (employee.isHasLessons()) {
+            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+        }
         employeeRepository.delete(employee);
     }
 
