@@ -55,7 +55,7 @@ public class News {
     public void updateFromRequest(NewsUpdateRequest request) {
         this.title = request.title();
         this.content = request.content();
-        this.imageLink = request.imageLink();
+        this.imageLink = request.imageLink() == null ? this.imageLink : request.imageLink();
         this.updatedAt = LocalDateTime.now();
     }
 }
