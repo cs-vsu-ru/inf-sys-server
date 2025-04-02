@@ -10,6 +10,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -67,6 +68,9 @@ public class Employee implements Serializable {
     @JoinColumn(name = "last_modified_by_id")
     private User lastModifiedBy;
     private Date lastModifiedAt;
+
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
     public void updateFromRequest(EmployeeUpdateRequest request, User updater) {
         this.user.setFirstName(request.firstName());
