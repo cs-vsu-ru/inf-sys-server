@@ -74,7 +74,7 @@ public class EmployeeService {
             if (!employee.isHasLessons() && employeeUpdateRequest.hasLessons()) {
                 doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
             } else if (employee.isHasLessons() && !employeeUpdateRequest.hasLessons()) {
-                deleteEmployeeLessons(employee);
+                doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
             }
             employee.updateFromRequest(employeeUpdateRequest, findByLoginOrThrow(authUserLogin).getUser());
         } else employee.setPlan(employeeUpdateRequest.plan());
