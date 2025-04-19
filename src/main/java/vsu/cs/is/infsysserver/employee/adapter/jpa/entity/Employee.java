@@ -70,7 +70,7 @@ public class Employee implements Serializable {
     private Date lastModifiedAt;
 
     @Column(nullable = false)
-    private boolean isDeleted = false;
+    private boolean isDisabled = false;
 
     public void updateFromRequest(EmployeeUpdateRequest request, User updater) {
         this.user.setFirstName(request.firstName());

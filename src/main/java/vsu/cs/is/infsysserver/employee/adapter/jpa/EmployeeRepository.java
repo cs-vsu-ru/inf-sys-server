@@ -11,6 +11,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Optional<Employee> findByUserLogin(String login);
 
-    @Query("SELECT e FROM Employee e WHERE e.isDeleted = false")
+    @Query("SELECT e FROM Employee e WHERE e.isDisabled = false")
     List<Employee> findAllActiveEmployees();
 }

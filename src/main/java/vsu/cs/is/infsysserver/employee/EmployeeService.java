@@ -92,7 +92,7 @@ public class EmployeeService {
                 throw e;
             }
         }
-        employee.setDeleted(true);
+        employee.setDisabled(true);
         employeeRepository.save(employee);
     }
 
