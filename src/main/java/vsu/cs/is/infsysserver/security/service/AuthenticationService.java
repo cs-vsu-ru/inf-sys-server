@@ -57,8 +57,7 @@ public class AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
-        ) {
+        if (optionalUser.isEmpty()) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
         }
 
