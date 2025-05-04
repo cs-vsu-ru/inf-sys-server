@@ -5,19 +5,14 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import vsu.cs.is.infsysserver.custom.page.adapter.PageMapper;
 import vsu.cs.is.infsysserver.custom.page.adapter.jpa.entity.Page;
-import vsu.cs.is.infsysserver.custom.page.adapter.jpa.entity.PageBlock;
-import vsu.cs.is.infsysserver.custom.page.adapter.jpa.entity.PageElement;
 import vsu.cs.is.infsysserver.custom.page.adapter.jpa.repository.PageRepository;
 import vsu.cs.is.infsysserver.custom.page.adapter.rest.dto.PageBlockDTO;
 import vsu.cs.is.infsysserver.custom.page.adapter.rest.dto.PageDTO;
 import vsu.cs.is.infsysserver.custom.page.adapter.rest.dto.PageElementDTO;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -43,39 +38,31 @@ public class CustomPageService {
     }
 
     public ResponseEntity<PageDTO> createPage(PageDTO page) {
-        validatePage(page);
-        Page newPage = pageMapper.map(page);
-        Optional<Page> pageOptional = pageRepository.findByName(page.name());
-
-        if (pageOptional.isPresent()) {
-            Page existingPage = pageOptional.get();
-            existingPage.setTitle(newPage.getTitle());
-            existingPage.setBlocks(newPage.getBlocks());
-            pageRepository.save(existingPage);
-        } else {
-            pageRepository.save(newPage);
-        }
-        return ok(page);
+        return savePage(page);
     }
 
     public ResponseEntity<PageDTO> updatePageByName(PageDTO page) {
-        validatePage(page);
-        Page newPage = pageMapper.map(page);
-        Optional<Page> pageOptional = pageRepository.findByName(page.name());
-
-        if (pageOptional.isPresent()) {
-            Page existingPage = pageOptional.get();
-            existingPage.setTitle(newPage.getTitle());
-            existingPage.setBlocks(newPage.getBlocks());
-            pageRepository.save(existingPage);
-        } else {
-            pageRepository.save(newPage);
-        }
-        return ok(page);
+        return savePage(page);
     }
 
     public void deletePageByName(String name) {
         pageRepository.deleteByName(name);
+    }
+
+    private ResponseEntity<PageDTO> savePage(PageDTO page) {
+        validatePage(page);
+        Page newPage = pageMapper.map(page);
+        Optional<Page> pageOptional = pageRepository.findByName(page.name());
+
+        if (pageOptional.isPresent()) {
+            Page existingPage = pageOptional.get();
+            existingPage.setTitle(newPage.getTitle());
+            existingPage.setBlocks(newPage.getBlocks());
+            pageRepository.save(existingPage);
+        } else {
+            pageRepository.save(newPage);
+        }
+        return ok(page);
     }
 
     private void validatePage(PageDTO page) {
