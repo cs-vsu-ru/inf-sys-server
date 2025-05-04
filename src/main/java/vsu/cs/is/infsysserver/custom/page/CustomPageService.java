@@ -18,6 +18,7 @@ import vsu.cs.is.infsysserver.custom.page.adapter.rest.dto.PageElementDTO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -43,13 +44,33 @@ public class CustomPageService {
 
     public ResponseEntity<PageDTO> createPage(PageDTO page) {
         validatePage(page);
-        pageRepository.save(pageMapper.map(page));
+        Page newPage = pageMapper.map(page);
+        Optional<Page> pageOptional = pageRepository.findByName(page.name());
+
+        if (pageOptional.isPresent()) {
+            Page existingPage = pageOptional.get();
+            existingPage.setTitle(newPage.getTitle());
+            existingPage.setBlocks(newPage.getBlocks());
+            pageRepository.save(existingPage);
+        } else {
+            pageRepository.save(newPage);
+        }
         return ok(page);
     }
 
     public ResponseEntity<PageDTO> updatePageByName(PageDTO page) {
         validatePage(page);
-        pageRepository.save(pageMapper.map(page));
+        Page newPage = pageMapper.map(page);
+        Optional<Page> pageOptional = pageRepository.findByName(page.name());
+
+        if (pageOptional.isPresent()) {
+            Page existingPage = pageOptional.get();
+            existingPage.setTitle(newPage.getTitle());
+            existingPage.setBlocks(newPage.getBlocks());
+            pageRepository.save(existingPage);
+        } else {
+            pageRepository.save(newPage);
+        }
         return ok(page);
     }
 
