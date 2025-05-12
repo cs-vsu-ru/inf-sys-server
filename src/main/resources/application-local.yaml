@@ -3,7 +3,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/inf-sys
     username: inf-sys-server
-    password: myPasswordForDB
+    password: ${POSTGRES_PASSWORD}
   liquibase:
     contexts: local
     enabled: true
