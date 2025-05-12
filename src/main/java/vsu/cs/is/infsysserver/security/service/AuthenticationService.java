@@ -103,10 +103,10 @@ public class AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-//        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
-//        ) {
-//            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
-//        }
+        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
+        ) {
+            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+        }
 
         var user = optionalUser.get();
         if (user.getPassword().isEmpty() || passwordEncoder.matches(request.getPassword(), user.getPassword())) {
