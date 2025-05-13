@@ -20,10 +20,12 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeRespons
 import vsu.cs.is.infsysserver.security.util.UserMapper;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmployeeService {
 
@@ -34,7 +36,7 @@ public class EmployeeService {
     private final ApplicationProperties properties;
 
     public List<EmployeeResponse> getAllEmployees() {
-        return employeeRepository.findAll().stream().map(employeeMapper::map).toList();
+        return employeeRepository.findAllActiveEmployees().stream().map(employeeMapper::map).toList();
     }
 
     public EmployeeResponse getEmployeeById(long id) {
@@ -83,9 +85,15 @@ public class EmployeeService {
     public void deleteEmployeeById(long id) {
         Employee employee = findByIdOrThrow(id);
         if (employee.isHasLessons()) {
-            doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
+            try {
+                deleteEmployeeLessons(employee);
+            } catch (Exception e) {
+                log.error("lessons deletion failed", e);
+                throw e;
+            }
         }
-        employeeRepository.delete(employee);
+        employee.setDisabled(true);
+        employeeRepository.save(employee);
     }
 
     private Employee findByIdOrThrow(Long id) {
@@ -113,5 +121,10 @@ public class EmployeeService {
         return employeeRepository.findByUserLogin(login).orElseThrow(
                 () -> new EntityNotFoundException("По логину: " + login + " не найдено ни одного сотрудника")
         );
+    }
+
+    private void deleteEmployeeLessons(Employee employee) {
+        doLessonsOperationForEmployee(LessonsOperation.CREATE_EMPTY, employee);
+        doLessonsOperationForEmployee(LessonsOperation.DELETE, employee);
     }
 }
