@@ -3,21 +3,30 @@ package vsu.cs.is.infsysserver.security.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
+import vsu.cs.is.infsysserver.security.entity.dto.response.StudentAuthenticationResponse;
+import vsu.cs.is.infsysserver.security.entity.temp.Role;
 import vsu.cs.is.infsysserver.security.entity.token.Token;
 import vsu.cs.is.infsysserver.security.entity.token.TokenRepository;
 import vsu.cs.is.infsysserver.security.entity.token.TokenType;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
+import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
+import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentRequest;
+import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
@@ -30,6 +39,7 @@ import static vsu.cs.is.infsysserver.security.util.Constants.BEARER_PREFIX;
 public class AuthenticationService {
     private final UserRepository repository;
     private final TokenRepository tokenRepository;
+    private final StudentRepository studentRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final LdapAuthentication ldapAuthentication;
@@ -53,11 +63,48 @@ public class AuthenticationService {
                 .build();
     }
 
+    @Transactional
+    public StudentAuthenticationResponse registerStudent(StudentRequest request) {
+        var user = User.builder()
+                .login(request.getLogin())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .build();
+        var savedUser = repository.save(user);
+        User supervisor = repository.getReferenceById(request.getSupervisor());
+
+        Student student = Student.builder()
+                .user(savedUser)
+                .patronymic(request.getPatronymic())
+                .group(request.getGroup())
+                .course(request.getCourse())
+                .startYear(request.getStartYear())
+                .endYear(request.getEndYear())
+                .supervisor(supervisor)
+                .build();
+
+        studentRepository.save(student);
+
+        var userDetails = UserMapper.mapUserToUserDetails(savedUser);
+        var jwtToken = jwtService.generateToken(userDetails);
+        saveUserToken(savedUser, jwtToken);
+
+        StudentResponse studentResponse = new StudentResponse(student);
+
+        return StudentAuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .user(studentResponse)
+                .build();
+    }
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty()) {
+        if (optionalUser.isEmpty()
+        ) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
         }
 
