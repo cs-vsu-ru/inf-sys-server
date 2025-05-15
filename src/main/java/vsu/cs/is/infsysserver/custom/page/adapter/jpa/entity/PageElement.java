@@ -39,7 +39,7 @@ public class PageElement {
     private Long id;
 
     @Convert(converter = JsonbMapConverter.class)
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, columnDefinition = "jsonb")
     private Map<String, String> value;
 
     @Column(name = "position")

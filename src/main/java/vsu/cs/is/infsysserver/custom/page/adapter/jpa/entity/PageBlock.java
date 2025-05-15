@@ -47,7 +47,7 @@ public class PageBlock {
     private String type;
 
     @Convert(converter = JsonbMapConverter.class)
-    @Column(name = "elements_type", nullable = false)
+    @Column(name = "elements_type", nullable = false, columnDefinition = "jsonb")
     private Map<String, String> elementsType;
 
     @Column(name = "needs_image")
