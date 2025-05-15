@@ -6,8 +6,6 @@ plugins {
     application
     id("org.springframework.boot") version "3.2.3"
     id("io.spring.dependency-management") version "1.1.4"
-
-    checkstyle
 }
 
 group = "vsu.cs.is"
@@ -84,15 +82,6 @@ tasks {
 
     test {
         useJUnitPlatform()
-    }
-
-    checkstyle {
-        isShowViolations = true
-
-        checkstyleTest {
-            enabled = false
-        }
-
     }
 
     bootJar {

@@ -10,7 +10,7 @@ spring:
 
 application:
   upload:
-    server-url: 'https://cs.vsu.ru/is'
+    server-url: 'http://37.228.116.34'
     base-files-folder: ${BASE_FILES_FOLDER}
   security:
     jwt:
