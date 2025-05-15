@@ -87,7 +87,7 @@ tasks {
     }
 
     checkstyle {
-        isShowViolations = true
+        isShowViolations = false
 
         checkstyleTest {
             enabled = false
