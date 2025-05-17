@@ -104,6 +104,7 @@ public class EmployeeService {
 
     private void doLessonsOperationForEmployee(LessonsOperation operation, Employee employee) {
         ParserEmployeeRequest request = new ParserEmployeeRequest(employee.getId());
+        log.info("Employee id from method: " + request);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Host", "parser_api:8000");
