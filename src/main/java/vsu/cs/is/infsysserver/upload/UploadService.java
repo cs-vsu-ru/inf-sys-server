@@ -30,7 +30,7 @@ public class UploadService {
         try {
             byte[] bytes = file.getBytes();
             Files.write(path, bytes);
-            return path.toString();
+            return filePath;
         } catch (IOException ex) {
             LOGGER.severe(ex.getLocalizedMessage());
 
