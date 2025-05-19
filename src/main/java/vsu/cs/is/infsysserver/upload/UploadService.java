@@ -25,7 +25,7 @@ public class UploadService {
         UUID uuid = UUID.randomUUID();
         String filePath = uuid + file.getOriginalFilename();
 
-        Path path = Path.of(filePath);
+        Path path = Path.of(applicationProperties.upload().baseFilesFolder() + filePath);
         LOGGER.info(path.toFile().getAbsolutePath());
         try {
             byte[] bytes = file.getBytes();
