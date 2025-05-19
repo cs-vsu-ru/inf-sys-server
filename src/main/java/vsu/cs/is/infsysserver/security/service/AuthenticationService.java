@@ -5,13 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
@@ -103,7 +101,7 @@ public class AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty()
+        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
         ) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
         }

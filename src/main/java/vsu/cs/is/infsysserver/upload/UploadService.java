@@ -23,16 +23,14 @@ public class UploadService {
 
     public String uploadFile(MultipartFile file) {
         UUID uuid = UUID.randomUUID();
-        String filePath = applicationProperties.upload().baseFilesFolder()
-                + uuid
-                + file.getOriginalFilename();
+        String filePath = uuid + file.getOriginalFilename();
 
         Path path = Path.of(filePath);
         LOGGER.info(path.toFile().getAbsolutePath());
         try {
             byte[] bytes = file.getBytes();
             Files.write(path, bytes);
-            return applicationProperties.upload().serverUrl() + path;
+            return path.toString();
         } catch (IOException ex) {
             LOGGER.severe(ex.getLocalizedMessage());
 
