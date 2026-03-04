@@ -51,6 +51,7 @@ services:
     networks:
       - backend-db-network
       - nginx-network
+    restart: always
 
   inf-sys-parser:
     image: ghcr.io/cs-vsu-ru/inf-sys-parser:latest
@@ -69,6 +70,7 @@ services:
       - backend-db-network
       - backend-redis-network
       - nginx-network
+    restart: always
 
   nginx:
     build:
@@ -88,6 +90,7 @@ services:
       - "443:443"
     networks:
       - nginx-network
+    restart: always
 
 volumes:
   postgres-data:
