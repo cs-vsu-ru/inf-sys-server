@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jre
 
 ARG GITHUB_REPO
 LABEL org.opencontainers.image.source=https://github.com/${GITHUB_REPO}
