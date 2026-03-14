@@ -1,4 +1,4 @@
-name: Redeploy Image on Host
+name: Redeploy Image on Dev
 
 on:
   workflow_dispatch:
@@ -18,5 +18,5 @@ jobs:
           set -e
           cd /dev-server
           docker compose pull
-          docker compose up -d
+          docker compose up -d --build
           docker ps
