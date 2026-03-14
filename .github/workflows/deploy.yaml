@@ -4,9 +4,15 @@ on:
   workflow_dispatch:
 
 jobs:
-
-  publish:
+  redeploy:
     runs-on: self-hosted
 
     steps:
-      - run: touch docker-compose.yaml
+      - name: Redeploy containers
+        shell: bash
+        run: |
+          set -e
+          cd /dev-server
+          docker compose pull
+          docker compose up -d
+          docker ps
