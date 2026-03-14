@@ -11,8 +11,11 @@ jobs:
       - name: Redeploy containers
         shell: bash
         run: |
-          set -e
+          echo "Checking directory..."
+          ls -la /dev-server/ || { echo "Directory /dev-server not found"; exit 1; }
           cd /dev-server
+          echo "Pulling images..."
           docker compose pull
+          echo "Starting containers..."
           docker compose up -d
           docker ps
