@@ -18,6 +18,7 @@ application:
       refresh-token:
         expiration: 604800000 # 7 days
     ldap:
+      enabled: ${LDAP_ENABLED:true}
       host: csfs.cs.vsu.ru
       port: 389
       email-host: cs.vsu.ru
