@@ -5,7 +5,7 @@ on:
 
 jobs:
   redeploy:
-    runs-on: self-hosted
+    runs-on: dev
 
     steps:
       - name: Login to GitHub Container Registry
