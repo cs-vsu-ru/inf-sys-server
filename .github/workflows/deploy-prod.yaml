@@ -1,0 +1,22 @@
+name: Redeploy Image on Prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  redeploy:
+    runs-on: prod
+
+    steps:
+      - name: Login to GitHub Container Registry
+        shell: bash
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Redeploy containers
+        shell: bash
+        run: |
+          set -e
+          cd ~/prod
+          docker compose pull
+          docker compose up -d --build
+          docker ps
