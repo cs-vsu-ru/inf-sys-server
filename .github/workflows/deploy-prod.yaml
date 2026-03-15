@@ -1,11 +1,11 @@
-name: Redeploy Image on Dev
+name: Redeploy Image on Prod
 
 on:
   workflow_dispatch:
 
 jobs:
   redeploy:
-    runs-on: dev
+    runs-on: prod
 
     steps:
       - name: Login to GitHub Container Registry
@@ -16,7 +16,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          cd /dev-server
+          cd ~/prod
           docker compose pull
           docker compose up -d --build
           docker ps
