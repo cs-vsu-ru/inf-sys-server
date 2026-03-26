@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
             message.setTo(email);
             message.setSubject("Код подтверждения");
             String text = String.format(
-                    "Здравствуйте!\n\nВаш код подтверждения для регистрации: %s",
+                    "Здравствуйте!\n\nВаш код подтверждения для входа: %s",
                     code
             );
             message.setText(text);
