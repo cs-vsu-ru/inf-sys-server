@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
+import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
 import vsu.cs.is.infsysserver.security.service.AuthenticationService;
 
 import java.io.IOException;
@@ -25,11 +26,14 @@ public class AuthenticationController {
         return service.authenticate(request);
     }
 
+    @PostMapping("/verify-2fa")
+    public ResponseEntity<?> verifyTwoFactor(@RequestBody VerifyTwoFactorRequest request) {
+        return service.verifyTwoFactor(request);
+    }
+
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
         service.refreshToken(request, response);
-}
-
-
+    }
 }
