@@ -26,5 +26,9 @@ public class VerificationCode {
     private LocalDateTime expiresAt;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @Column(name = "attempt_count", nullable = false)
+    private int attemptCount = 0;
+    @Column(name = "blocked_until")
+    private LocalDateTime blockedUntil;
 
 }

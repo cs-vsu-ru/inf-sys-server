@@ -200,7 +200,7 @@ class AuthIntegrationTest {
         verificationCodeRepository.save(new VerificationCode(
                 EMAIL_2FA, "111111",
                 LocalDateTime.now().plusMinutes(5),
-                LocalDateTime.now()
+                LocalDateTime.now(), 0, null
         ));
 
         mockMvc.perform(post("/api/verify-2fa")
@@ -215,7 +215,7 @@ class AuthIntegrationTest {
         verificationCodeRepository.save(new VerificationCode(
                 EMAIL_2FA, "123456",
                 LocalDateTime.now().minusSeconds(1),
-                LocalDateTime.now().minusMinutes(6)
+                LocalDateTime.now().minusMinutes(6), 0, null
         ));
 
         mockMvc.perform(post("/api/verify-2fa")

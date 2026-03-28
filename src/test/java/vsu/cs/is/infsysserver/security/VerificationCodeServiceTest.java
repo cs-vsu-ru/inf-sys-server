@@ -68,7 +68,7 @@ class VerificationCodeServiceTest {
     void generateAndSendCode_ExistingEmail_OverwritesCode() {
         // given
         String email = "student@cs.vsu.ru";
-        var existing = new VerificationCode(email, "000001", LocalDateTime.now().plusMinutes(3), LocalDateTime.now().minusMinutes(2));
+        var existing = new VerificationCode(email, "000001", LocalDateTime.now().plusMinutes(3), LocalDateTime.now().minusMinutes(2), 0, null);
         doReturn(Optional.of(existing)).when(verificationCodeRepository).findById(email);
 
         // when
@@ -87,7 +87,7 @@ class VerificationCodeServiceTest {
         // given
         String email = "student@cs.vsu.ru";
         String code = "123456";
-        var verificationCode = new VerificationCode(email, code, LocalDateTime.now().plusMinutes(4), LocalDateTime.now());
+        var verificationCode = new VerificationCode(email, code, LocalDateTime.now().plusMinutes(4), LocalDateTime.now(), 0, null);
         doReturn(Optional.of(verificationCode)).when(verificationCodeRepository).findById(email);
 
         // when
@@ -103,7 +103,7 @@ class VerificationCodeServiceTest {
         // given
         String email = "student@cs.vsu.ru";
         String code = "123456";
-        var expired = new VerificationCode(email, code, LocalDateTime.now().minusSeconds(1), LocalDateTime.now().minusMinutes(6));
+        var expired = new VerificationCode(email, code, LocalDateTime.now().minusSeconds(1), LocalDateTime.now().minusMinutes(6), 0, null);
         doReturn(Optional.of(expired)).when(verificationCodeRepository).findById(email);
 
         // when / then
@@ -116,7 +116,7 @@ class VerificationCodeServiceTest {
     void validateAndConsume_WrongCode_ThrowsWithoutDeletion() {
         // given
         String email = "student@cs.vsu.ru";
-        var verificationCode = new VerificationCode(email, "111111", LocalDateTime.now().plusMinutes(4), LocalDateTime.now());
+        var verificationCode = new VerificationCode(email, "111111", LocalDateTime.now().plusMinutes(4), LocalDateTime.now(), 0, null);
         doReturn(Optional.of(verificationCode)).when(verificationCodeRepository).findById(email);
 
         // when / then
