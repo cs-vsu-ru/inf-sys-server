@@ -14,6 +14,7 @@ public interface EmployeeMapper {
     @Mapping(source = "user.lastName", target = "lastName")
     @Mapping(source = "user.email", target = "email")
     @Mapping(source = "user.role", target = "mainRole")
+    @Mapping(source = "user.twoFactorEnabled", target = "twoFactorEnabled")
     EmployeeResponse map(Employee employee);
 
     @Mapping(source = "user.firstName", target = "firstName")
