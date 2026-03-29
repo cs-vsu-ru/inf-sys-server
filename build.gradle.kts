@@ -60,6 +60,8 @@ dependencies {
 
     // devtools
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
+    implementation("org.apache.commons:commons-csv:1.11.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")
