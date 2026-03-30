@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.employee.adapter.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +42,14 @@ public class EmployeeController implements EmployeeApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/{id}")
     public ResponseEntity<EmployeeAdminResponse> getEmployeeAdminById(@PathVariable Long id) {
         return ok(employeeService.getEmployeeAdminById(id));
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee(
             @RequestBody EmployeeCreateRequest employeeCreateRequest,
@@ -55,6 +58,7 @@ public class EmployeeController implements EmployeeApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<EmployeeAdminResponse> updateEmployeeById(
             @PathVariable Long id,
@@ -65,6 +69,7 @@ public class EmployeeController implements EmployeeApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<EmployeeResponse> deleteEmployeeById(@PathVariable Long id) {
         employeeService.deleteEmployeeById(id);
