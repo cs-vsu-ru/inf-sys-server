@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.event.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,7 @@ public class EventController implements EventApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventCreateRequest eventCreateRequest) {
         return ResponseEntity
@@ -49,6 +51,7 @@ public class EventController implements EventApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EventResponse> updateEventById(@PathVariable Long id,
                                                          @RequestBody EventUpdateRequest eventUpdateRequest) {
@@ -56,6 +59,7 @@ public class EventController implements EventApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         eventService.deleteEventById(id);

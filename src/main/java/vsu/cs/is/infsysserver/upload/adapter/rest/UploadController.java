@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.upload.adapter.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ public class UploadController {
 
     private final UploadService uploadService;
 
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping("/upload-file")
     public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file) {
         return ResponseEntity.ok().body(uploadService.uploadFile(file));
