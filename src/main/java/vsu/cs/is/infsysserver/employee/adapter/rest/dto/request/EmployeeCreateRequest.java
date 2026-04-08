@@ -27,6 +27,8 @@ public record EmployeeCreateRequest(
         String email,
         @Schema(description = "Логин пользователя", example = "kudinov_i_m")
         String login,
+        @Schema(description = "Пароль пользователя", example = "strongPassword123")
+        String password,
         @Schema(description = "Ссылка на фото", example = "https://i.imgur.com/fn32s4s.jpeg")
         String imageUrl,
         @Schema(description = "Ссылка на индивидуальный план работы преподавателя", example

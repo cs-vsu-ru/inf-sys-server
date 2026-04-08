@@ -50,8 +50,8 @@ public class EmployeeController implements EmployeeApi {
     @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee(
             @RequestBody EmployeeCreateRequest employeeCreateRequest,
-            @AuthenticationPrincipal String authUserEmail) {
-        return ok(employeeService.createEmployee(employeeCreateRequest, authUserEmail));
+            @AuthenticationPrincipal String authUserLogin) {
+        return ok(employeeService.createEmployee(employeeCreateRequest, authUserLogin));
     }
 
     @Override
@@ -59,9 +59,9 @@ public class EmployeeController implements EmployeeApi {
     public ResponseEntity<EmployeeAdminResponse> updateEmployeeById(
             @PathVariable Long id,
             @RequestBody EmployeeUpdateRequest employeeUpdateRequest,
-            @AuthenticationPrincipal String authUserEmail
+            @AuthenticationPrincipal String authUserLogin
     ) {
-        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest, authUserEmail));
+        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest, authUserLogin));
     }
 
     @Override
