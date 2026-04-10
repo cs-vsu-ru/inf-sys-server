@@ -1,10 +1,13 @@
 package vsu.cs.is.infsysserver.navigation.adapter.jpa.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +38,10 @@ public class NavigationTab {
 
     @Column(name = "visible", nullable = false)
     private Boolean visible;
+
+    @OneToOne(mappedBy = "tab", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private TabContent tabContent;
 
     public void updateFromRequest(NavigationTabUpdateRequest request) {
         this.name = request.name() != null ? request.name() : this.name;

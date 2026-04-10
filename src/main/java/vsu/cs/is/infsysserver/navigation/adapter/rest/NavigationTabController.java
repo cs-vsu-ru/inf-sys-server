@@ -16,7 +16,9 @@ import vsu.cs.is.infsysserver.navigation.adapter.rest.api.NavigationTabAPI;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabCreateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabReorderRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabUpdateRequest;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.TabContentUpdateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.NavigationTabResponse;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.TabContentResponse;
 
 import java.util.Collection;
 
@@ -69,5 +71,17 @@ public class NavigationTabController implements NavigationTabAPI {
     public ResponseEntity<Void> deleteTabById(@PathVariable Long id) {
         navigationTabService.deleteTabById(id);
         return ok().build();
+    }
+
+    @GetMapping("/{id}/content")
+    public ResponseEntity<TabContentResponse> getTabContent(@PathVariable Long id) {
+        return ok(navigationTabService.getTabContent(id));
+    }
+
+    @PutMapping("/{id}/content")
+    public ResponseEntity<TabContentResponse> updateTabContent(
+            @PathVariable Long id,
+            @RequestBody TabContentUpdateRequest request) {
+        return ok(navigationTabService.updateTabContent(id, request));
     }
 }

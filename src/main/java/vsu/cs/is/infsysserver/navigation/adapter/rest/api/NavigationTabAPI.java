@@ -14,7 +14,9 @@ import vsu.cs.is.infsysserver.exception.message.ErrorMessage;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabCreateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabReorderRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabUpdateRequest;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.TabContentUpdateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.NavigationTabResponse;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.TabContentResponse;
 
 import java.util.Collection;
 
@@ -166,5 +168,67 @@ public interface NavigationTabAPI {
     @Operation(summary = "Удаляет вкладку навигации по идентификатору")
     ResponseEntity<Void> deleteTabById(
             @Parameter(description = "Идентификатор удаляемой вкладки") Long id
+    );
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Контент вкладки успешно получен",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = TabContentResponse.class
+                                    )
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Вкладка навигации не найдена",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorMessage.class)
+                            )
+                    }
+            )
+    })
+    @Operation(summary = "Получить контент вкладки навигации по её идентификатору")
+    ResponseEntity<TabContentResponse> getTabContent(
+            @Parameter(description = "Идентификатор вкладки навигации", required = true)
+            Long id
+    );
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Контент вкладки успешно обновлён",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = TabContentResponse.class
+                                    )
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Вкладка навигации не найдена",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorMessage.class)
+                            )
+                    }
+            )
+    })
+    @Operation(summary = "Обновить контент вкладки навигации")
+    ResponseEntity<TabContentResponse> updateTabContent(
+            @Parameter(description = "Идентификатор вкладки навигации", required = true)
+            Long id,
+            @RequestBody(description = "DTO с обновлённым контентом")
+            TabContentUpdateRequest request
     );
 }
