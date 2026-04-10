@@ -7,14 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import vsu.cs.is.infsysserver.exception.GeneralException;
 import vsu.cs.is.infsysserver.navigation.adapter.NavigationTabMapper;
 import vsu.cs.is.infsysserver.navigation.adapter.jpa.NavigationTabRepository;
+import vsu.cs.is.infsysserver.navigation.adapter.jpa.TabContentRepository;
 import vsu.cs.is.infsysserver.navigation.adapter.jpa.entity.NavigationTab;
+import vsu.cs.is.infsysserver.navigation.adapter.jpa.entity.TabContent;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabCreateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabReorderRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.NavigationTabUpdateRequest;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.request.TabContentUpdateRequest;
 import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.NavigationTabResponse;
+import vsu.cs.is.infsysserver.navigation.adapter.rest.dto.response.TabContentResponse;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 public class NavigationTabService {
 
     private final NavigationTabRepository navigationTabRepository;
+
+    private final TabContentRepository tabContentRepository;
 
     private final NavigationTabMapper navigationTabMapper;
 
@@ -47,6 +52,7 @@ public class NavigationTabService {
     public NavigationTabResponse createTab(NavigationTabCreateRequest createRequest) {
         var tab = navigationTabMapper.map(createRequest);
         var savedTab = navigationTabRepository.save(tab);
+        createEmptyContent(savedTab);
         return navigationTabMapper.map(savedTab);
     }
 
@@ -86,6 +92,35 @@ public class NavigationTabService {
                 .stream()
                 .map(navigationTabMapper::map)
                 .toList();
+    }
+
+    public TabContentResponse getTabContent(Long tabId) {
+        var tab = processFindTabById(tabId);
+        var tabContent = tabContentRepository.findByTabId(tabId)
+                .orElseGet(() -> createEmptyContent(tab));
+        return new TabContentResponse(tabId, tabContent.getContent());
+    }
+
+    @Transactional
+    public TabContentResponse updateTabContent(Long tabId,
+                                               TabContentUpdateRequest request) {
+        var tab = processFindTabById(tabId);
+        var tabContent = tabContentRepository.findByTabId(tabId)
+                .orElseGet(() -> {
+                    var newContent = new TabContent();
+                    newContent.setTab(tab);
+                    return newContent;
+                });
+        tabContent.setContent(request.content());
+        tabContentRepository.save(tabContent);
+        return new TabContentResponse(tabId, tabContent.getContent());
+    }
+
+    private TabContent createEmptyContent(NavigationTab tab) {
+        var tabContent = new TabContent();
+        tabContent.setTab(tab);
+        tabContent.setContent("");
+        return tabContentRepository.save(tabContent);
     }
 
     private NavigationTab processFindTabById(Long id) {
