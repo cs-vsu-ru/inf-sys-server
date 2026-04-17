@@ -18,7 +18,6 @@ import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 @NoArgsConstructor
 public class Student {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -49,4 +48,15 @@ public class Student {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "scientific_supervisor")
+    private User scientificSupervisor;
+
+    @Column(name = "course_job")
+    private String courseJob;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 }
