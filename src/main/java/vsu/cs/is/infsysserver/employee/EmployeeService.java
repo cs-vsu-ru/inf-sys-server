@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import vsu.cs.is.infsysserver.configuration.properties.ApplicationProperties;
@@ -34,6 +35,7 @@ public class EmployeeService {
     private final EmployeeMapper employeeMapper;
     private final RestTemplate restTemplate;
     private final ApplicationProperties properties;
+    private final PasswordEncoder passwordEncoder;
 
     public List<EmployeeResponse> getAllEmployees() {
         return employeeRepository.findAllActiveEmployees().stream().map(employeeMapper::map).toList();
@@ -51,8 +53,12 @@ public class EmployeeService {
         return employeeMapper.map(findByLoginOrThrow(login));
     }
 
+    @Transactional
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
         User user = UserMapper.mapEmployeeCreateRequestToUser(employeeCreateRequest);
+        if (employeeCreateRequest.password() != null && !employeeCreateRequest.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(employeeCreateRequest.password()));
+        }
         user = userRepository.save(user);
 
         Employee employee = employeeMapper.map(employeeCreateRequest);
