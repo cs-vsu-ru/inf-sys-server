@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 @Entity

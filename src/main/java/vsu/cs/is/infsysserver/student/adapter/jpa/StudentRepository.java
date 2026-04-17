@@ -20,4 +20,9 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Modifying
     @Query("UPDATE Student s SET s.supervisor = null WHERE s.supervisor.id = :supervisorId")
     void clearSupervisorForStudents(Long supervisorId);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Student s SET s.scientificSupervisor = null WHERE s.scientificSupervisor.id = :userId")
+    void clearScientificSupervisorForStudents(Long userId);
 }

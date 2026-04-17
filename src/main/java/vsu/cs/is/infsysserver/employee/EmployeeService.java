@@ -101,6 +101,7 @@ public class EmployeeService {
             }
         }
         studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
         employee.setDisabled(!employee.isDisabled());
         employeeRepository.save(employee);
     }
@@ -117,6 +118,7 @@ public class EmployeeService {
             }
         }
         studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
         User user = employee.getUser();
         employeeRepository.delete(employee);
         employeeRepository.flush();
