@@ -41,6 +41,8 @@ public class SliderElement {
 
     private String title;
 
+    private String description;
+
     @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createAt;
 
@@ -48,6 +50,7 @@ public class SliderElement {
 
     public void updateFromRequest(SliderElementUpdateRequest request) {
         this.title = request.title();
+        this.description = request.description();
         this.imageURL = request.imageURL();
         this.urlTo = request.urlTo();
         this.updatedAt = LocalDateTime.now();
