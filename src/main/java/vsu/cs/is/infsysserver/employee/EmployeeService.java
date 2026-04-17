@@ -18,6 +18,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.ParserEmployeeRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final EmployeeMapper employeeMapper;
     private final RestTemplate restTemplate;
     private final ApplicationProperties properties;
@@ -92,6 +94,7 @@ public class EmployeeService {
                 throw e;
             }
         }
+        studentRepository.clearSupervisorForStudents(id);
         employee.setDisabled(true);
         employeeRepository.save(employee);
     }
@@ -107,6 +110,7 @@ public class EmployeeService {
                 throw e;
             }
         }
+        studentRepository.clearSupervisorForStudents(id);
         User user = employee.getUser();
         employeeRepository.delete(employee);
         employeeRepository.flush();
