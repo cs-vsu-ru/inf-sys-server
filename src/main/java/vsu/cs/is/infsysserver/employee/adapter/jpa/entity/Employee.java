@@ -19,6 +19,7 @@ import lombok.ToString;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
@@ -68,6 +69,7 @@ public class Employee implements Serializable {
     @ManyToOne
     @JoinColumn(name = "last_modified_by_id", nullable = true, foreignKey = @ForeignKey(name = "fk_employees_last_modified_by"))
     private User lastModifiedBy;
+    @UpdateTimestamp(source = SourceType.DB)
     private Date lastModifiedAt;
 
     @Column(nullable = false)
