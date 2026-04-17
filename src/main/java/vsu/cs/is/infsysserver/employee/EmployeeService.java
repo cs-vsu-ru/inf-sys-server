@@ -95,7 +95,7 @@ public class EmployeeService {
             }
         }
         studentRepository.clearSupervisorForStudents(id);
-        employee.setDisabled(true);
+        employee.setDisabled(!employee.isDisabled());
         employeeRepository.save(employee);
     }
 

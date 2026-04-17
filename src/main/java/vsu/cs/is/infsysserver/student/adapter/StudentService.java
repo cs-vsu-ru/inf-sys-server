@@ -61,7 +61,7 @@ public class StudentService {
         Student student = studentRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("По id: " + id + " не найдено ни одного студента")
         );
-        student.setDisabled(true);
+        student.setDisabled(!student.isDisabled());
         studentRepository.save(student);
     }
 
