@@ -82,7 +82,7 @@ public class EmployeeService {
                 employeeRepository.save(employee));
     }
 
-    public void deleteEmployeeById(long id) {
+    public void disableEmployeeById(long id) {
         Employee employee = findByIdOrThrow(id);
         if (employee.isHasLessons()) {
             try {
@@ -94,6 +94,25 @@ public class EmployeeService {
         }
         employee.setDisabled(true);
         employeeRepository.save(employee);
+    }
+
+    @Transactional
+    public void deleteEmployeeById(long id) {
+        Employee employee = findByIdOrThrow(id);
+        if (employee.isHasLessons()) {
+            try {
+                deleteEmployeeLessons(employee);
+            } catch (Exception e) {
+                log.error("lessons deletion failed", e);
+                throw e;
+            }
+        }
+        User user = employee.getUser();
+        employeeRepository.delete(employee);
+        employeeRepository.flush();
+        if (user != null) {
+            userRepository.delete(user);
+        }
     }
 
     private Employee findByIdOrThrow(Long id) {

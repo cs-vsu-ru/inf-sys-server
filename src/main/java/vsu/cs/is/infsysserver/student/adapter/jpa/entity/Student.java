@@ -49,4 +49,8 @@ public class Student {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "is_disabled", nullable = false)
+    @Builder.Default
+    private boolean isDisabled = false;
 }
