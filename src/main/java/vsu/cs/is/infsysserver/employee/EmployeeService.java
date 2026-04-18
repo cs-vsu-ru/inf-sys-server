@@ -19,6 +19,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.ParserEmployeeRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final EmployeeMapper employeeMapper;
     private final RestTemplate restTemplate;
     private final ApplicationProperties properties;
@@ -88,6 +90,23 @@ public class EmployeeService {
                 employeeRepository.save(employee));
     }
 
+    public void disableEmployeeById(long id) {
+        Employee employee = findByIdOrThrow(id);
+        if (employee.isHasLessons()) {
+            try {
+                deleteEmployeeLessons(employee);
+            } catch (Exception e) {
+                log.error("lessons deletion failed", e);
+                throw e;
+            }
+        }
+        studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
+        employee.setDisabled(!employee.isDisabled());
+        employeeRepository.save(employee);
+    }
+
+    @Transactional
     public void deleteEmployeeById(long id) {
         Employee employee = findByIdOrThrow(id);
         if (employee.isHasLessons()) {
@@ -98,8 +117,14 @@ public class EmployeeService {
                 throw e;
             }
         }
-        employee.setDisabled(true);
-        employeeRepository.save(employee);
+        studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
+        User user = employee.getUser();
+        employeeRepository.delete(employee);
+        employeeRepository.flush();
+        if (user != null) {
+            userRepository.delete(user);
+        }
     }
 
     private Employee findByIdOrThrow(Long id) {

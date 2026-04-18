@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import vsu.cs.is.infsysserver.employee.adapter.jpa.entity.Employee;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 @Entity
@@ -23,7 +21,7 @@ public class Student {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -59,4 +57,8 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @Column(name = "is_disabled", nullable = false)
+    @Builder.Default
+    private boolean isDisabled = false;
 }

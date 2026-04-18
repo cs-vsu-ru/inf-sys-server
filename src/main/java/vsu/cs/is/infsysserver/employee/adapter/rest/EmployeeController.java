@@ -70,4 +70,11 @@ public class EmployeeController implements EmployeeApi {
         employeeService.deleteEmployeeById(id);
         return ok().build();
     }
+
+    @Override
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<EmployeeResponse> disableEmployeeById(@PathVariable Long id) {
+        employeeService.disableEmployeeById(id);
+        return ok().build();
+    }
 }

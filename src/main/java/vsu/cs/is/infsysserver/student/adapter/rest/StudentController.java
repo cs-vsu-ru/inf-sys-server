@@ -53,7 +53,12 @@ public class StudentController {
 
     @DeleteMapping("/students/{id}")
     public void delete(@PathVariable Long id) {
-        studentRepository.deleteById(id);
+        studentService.deleteStudent(id);
+    }
+
+    @PatchMapping("/students/{id}/disable")
+    public void disable(@PathVariable Long id) {
+        studentService.disableStudent(id);
     }
 
     @GetMapping("/student/{id}")

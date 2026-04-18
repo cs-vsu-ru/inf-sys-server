@@ -150,7 +150,27 @@ public interface EmployeeApi {
                     }
             )
     })
-    @Operation(summary = "Удаляет сотрудника с переданным ID")
+    @Operation(summary = "Полностью удаляет сотрудника и связанного пользователя с переданным ID")
     ResponseEntity<EmployeeResponse> deleteEmployeeById(
             @Parameter(description = "ID удаляемого сотрудника") Long id);
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Успешное отключение сотрудника"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Отсутствует сотрудник с переданным ID",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorMessage.class)
+                            )
+                    }
+            )
+    })
+    @Operation(summary = "Отключает сотрудника с переданным ID (soft-delete без удаления пользователя)")
+    ResponseEntity<EmployeeResponse> disableEmployeeById(
+            @Parameter(description = "ID отключаемого сотрудника") Long id);
 }

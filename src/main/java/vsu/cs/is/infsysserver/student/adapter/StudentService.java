@@ -1,5 +1,7 @@
 package vsu.cs.is.infsysserver.student.adapter;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,6 +69,27 @@ public class StudentService {
         studentRepository.save(student);
 
         return new StudentResponse(student);
+    }
+
+    public void disableStudent(Long id) {
+        Student student = studentRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("По id: " + id + " не найдено ни одного студента")
+        );
+        student.setDisabled(!student.isDisabled());
+        studentRepository.save(student);
+    }
+
+    @Transactional
+    public void deleteStudent(Long id) {
+        Student student = studentRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("По id: " + id + " не найдено ни одного студента")
+        );
+        User user = student.getUser();
+        studentRepository.delete(student);
+        studentRepository.flush();
+        if (user != null) {
+            userRepository.delete(user);
+        }
     }
 
     public StudentResponse getCurrentStudent() {
