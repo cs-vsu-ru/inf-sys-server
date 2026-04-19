@@ -56,7 +56,9 @@ public class StudentResponse {
         this.group = student.getGroup();
         this.startYear = student.getStartYear();
         this.endYear = student.getEndYear();
-        this.supervisor = student.getSupervisor().getId();
+        this.supervisor = Optional.ofNullable(student.getSupervisor())
+                .map(User::getId)
+                .orElse(null);
         this.imageUrl = student.getImageUrl();
         this.courseJob = student.getCourseJob();
         this.scientificSupervisor = Optional.ofNullable(student.getScientificSupervisor())
