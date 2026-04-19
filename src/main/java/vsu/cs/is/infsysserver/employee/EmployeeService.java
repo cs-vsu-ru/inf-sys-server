@@ -39,8 +39,10 @@ public class EmployeeService {
     private final ApplicationProperties properties;
     private final PasswordEncoder passwordEncoder;
 
-    public List<EmployeeResponse> getAllEmployees() {
-        return employeeRepository.findAllActiveEmployees().stream().map(employeeMapper::map).toList();
+    public List<EmployeeResponse> getAllEmployees(boolean isActive) {
+        return employeeRepository.findByIsDisabled(!isActive).stream()
+                .map(employeeMapper::map)
+                .toList();
     }
 
     public EmployeeResponse getEmployeeById(long id) {

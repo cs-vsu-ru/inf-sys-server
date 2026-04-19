@@ -33,10 +33,8 @@ public class StudentController {
     private final JwtService jwtService;
 
     @GetMapping("/students")
-    public List<StudentResponse> getAll() {
-        return studentRepository.findAll().stream()
-                .map(StudentResponse::new)
-                .toList();
+    public List<StudentResponse> getAll(@RequestParam(name = "isActive", defaultValue = "true") boolean isActive) {
+        return studentService.getAllStudents(isActive);
     }
 
     @PostMapping("/students")

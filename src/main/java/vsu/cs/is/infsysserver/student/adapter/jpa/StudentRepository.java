@@ -16,6 +16,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     List<Student> findBySupervisorId(Long supervisorId);
 
+    List<Student> findByIsDisabled(boolean isDisabled);
+
     @Transactional
     @Modifying
     @Query("UPDATE Student s SET s.supervisor = null WHERE s.supervisor.id = :supervisorId")

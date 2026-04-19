@@ -14,6 +14,7 @@ import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -25,6 +26,12 @@ public class StudentService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public List<StudentResponse> getAllStudents(boolean isActive) {
+        return studentRepository.findByIsDisabled(!isActive).stream()
+                .map(StudentResponse::new)
+                .toList();
+    }
 
     public StudentResponse editStudent(Long id, StudentEditRequest edit) {
         Student student = studentRepository.findById(id).orElseThrow();
