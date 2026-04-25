@@ -65,6 +65,9 @@ public class VerificationCodeService {
         log.info("Generating verification code for email {}", email);
 
         verificationCodeRepository.findById(email).ifPresent(vc -> {
+            if (vc.getBlockedUntil() != null && LocalDateTime.now().isBefore(vc.getBlockedUntil())) {
+                throw new GeneralException("Слишком много неверных попыток. Попробуйте через " + blockDurationMinutes + " минут", HttpStatus.TOO_MANY_REQUESTS);
+            }
             long secondsSinceCreation = ChronoUnit.SECONDS.between(vc.getCreatedAt(), LocalDateTime.now());
             if (secondsSinceCreation < resendCooldownSeconds) {
                 long remaining = resendCooldownSeconds - secondsSinceCreation;
