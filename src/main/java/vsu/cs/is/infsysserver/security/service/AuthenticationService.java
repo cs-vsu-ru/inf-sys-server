@@ -132,7 +132,11 @@ public class AuthenticationService {
             if (user.getEmail() == null || user.getEmail().isBlank()) {
                 return new ResponseEntity<>("У пользователя не указана почта для 2FA", HttpStatus.BAD_REQUEST);
             }
-            verificationCodeService.generateAndSendCode(user.getEmail());
+            try {
+                verificationCodeService.generateAndSendCode(user.getEmail());
+            } catch (GeneralException e) {
+                return new ResponseEntity<>(e.getMessage(), e.getStatus());
+            }
             return ResponseEntity.ok(TwoFactorRequiredResponse.builder()
                     .requiresTwoFactor(true)
                     .email(user.getEmail())
