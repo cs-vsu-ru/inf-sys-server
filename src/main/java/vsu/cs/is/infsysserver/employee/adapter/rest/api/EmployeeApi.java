@@ -13,7 +13,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeCreateRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.EmployeeUpdateRequest;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
-import vsu.cs.is.infsysserver.exception.message.ErrorMessage;
+import vsu.cs.is.infsysserver.exception.dto.ErrorResponse;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public interface EmployeeApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -78,7 +78,7 @@ public interface EmployeeApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -122,7 +122,7 @@ public interface EmployeeApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -145,7 +145,7 @@ public interface EmployeeApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )

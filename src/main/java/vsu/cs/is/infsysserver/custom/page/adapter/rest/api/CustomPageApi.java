@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import vsu.cs.is.infsysserver.custom.page.adapter.rest.dto.PageDTO;
-import vsu.cs.is.infsysserver.exception.message.ErrorMessage;
+import vsu.cs.is.infsysserver.exception.dto.ErrorResponse;
 
 import java.util.List;
 
@@ -64,7 +64,7 @@ public interface CustomPageApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -106,7 +106,7 @@ public interface CustomPageApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -126,7 +126,7 @@ public interface CustomPageApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )

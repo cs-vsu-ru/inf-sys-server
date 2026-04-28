@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springdoc.api.ErrorMessage;
 import org.springframework.http.ResponseEntity;
+import vsu.cs.is.infsysserver.exception.dto.ErrorResponse;
 import vsu.cs.is.infsysserver.event.adapter.rest.dto.request.EventCreateRequest;
 import vsu.cs.is.infsysserver.event.adapter.rest.dto.request.EventUpdateRequest;
 import vsu.cs.is.infsysserver.event.adapter.rest.dto.response.EventResponse;
@@ -49,7 +49,7 @@ public interface EventApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -91,7 +91,7 @@ public interface EventApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -113,7 +113,7 @@ public interface EventApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
