@@ -1,12 +1,23 @@
-name: Redeploy Image on Host
+name: Redeploy Image on Dev
 
 on:
   workflow_dispatch:
 
 jobs:
-
-  publish:
-    runs-on: self-hosted
+  redeploy:
+    runs-on: dev
 
     steps:
-      - run: touch docker-compose.yaml
+      - name: Login to GitHub Container Registry
+        shell: bash
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Redeploy containers
+        shell: bash
+        run: |
+          set -e
+          cd /dev-server
+          docker compose pull
+          docker compose build --pull --no-cache
+          docker compose up -d
+          docker ps

@@ -44,7 +44,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-
+    //email
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // springdoc
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["springdoc"]}")
@@ -70,6 +71,9 @@ dependencies {
     // testing
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:junit-jupiter")
 }
 
 tasks {

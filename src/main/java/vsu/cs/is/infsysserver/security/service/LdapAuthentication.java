@@ -14,8 +14,13 @@ public class LdapAuthentication {
     private int port;
     @Value("${application.security.ldap.email-host}")
     private String emailHost;
+    @Value("${application.security.ldap.enabled}")
+    private boolean enabled;
 
     public boolean isConnectionSuccess(AuthenticationRequest authenticationRequest) {
+        if (!enabled) {
+            return true;
+        }
 
         String username = authenticationRequest.getUsername() + "@" + emailHost;
         String password = authenticationRequest.getPassword();

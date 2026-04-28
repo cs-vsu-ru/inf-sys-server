@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.employee.EmployeeService;
 import vsu.cs.is.infsysserver.employee.adapter.rest.api.EmployeeApi;
@@ -30,8 +31,9 @@ public class EmployeeController implements EmployeeApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
-        return ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees(
+            @RequestParam(name = "isActive", defaultValue = "true") boolean isActive) {
+        return ok(employeeService.getAllEmployees(isActive));
     }
 
     @Override
@@ -50,8 +52,8 @@ public class EmployeeController implements EmployeeApi {
     @PostMapping
     public ResponseEntity<EmployeeResponse> createEmployee(
             @RequestBody EmployeeCreateRequest employeeCreateRequest,
-            @AuthenticationPrincipal String authUserEmail) {
-        return ok(employeeService.createEmployee(employeeCreateRequest, authUserEmail));
+            @AuthenticationPrincipal String authUserLogin) {
+        return ok(employeeService.createEmployee(employeeCreateRequest, authUserLogin));
     }
 
     @Override
@@ -59,15 +61,22 @@ public class EmployeeController implements EmployeeApi {
     public ResponseEntity<EmployeeAdminResponse> updateEmployeeById(
             @PathVariable Long id,
             @RequestBody EmployeeUpdateRequest employeeUpdateRequest,
-            @AuthenticationPrincipal String authUserEmail
+            @AuthenticationPrincipal String authUserLogin
     ) {
-        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest, authUserEmail));
+        return ok(employeeService.updateEmployeeById(id, employeeUpdateRequest, authUserLogin));
     }
 
     @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<EmployeeResponse> deleteEmployeeById(@PathVariable Long id) {
         employeeService.deleteEmployeeById(id);
+        return ok().build();
+    }
+
+    @Override
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<EmployeeResponse> disableEmployeeById(@PathVariable Long id) {
+        employeeService.disableEmployeeById(id);
         return ok().build();
     }
 }

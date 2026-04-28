@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.security.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,6 +31,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                                 req
                                         .requestMatchers("/api/students/**", "/api/students").hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.POST, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.PUT, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.DELETE, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
                                         .anyRequest()
                                         .permitAll()
 //                                      пример, как закрыть эндпоинт по пермиту

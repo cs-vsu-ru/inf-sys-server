@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import vsu.cs.is.infsysserver.configuration.properties.ApplicationProperties;
@@ -18,6 +19,7 @@ import vsu.cs.is.infsysserver.employee.adapter.rest.dto.request.ParserEmployeeRe
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeAdminResponse;
 import vsu.cs.is.infsysserver.employee.adapter.rest.dto.response.EmployeeResponse;
 import vsu.cs.is.infsysserver.security.util.UserMapper;
+import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +33,16 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final EmployeeMapper employeeMapper;
     private final RestTemplate restTemplate;
     private final ApplicationProperties properties;
+    private final PasswordEncoder passwordEncoder;
 
-    public List<EmployeeResponse> getAllEmployees() {
-        return employeeRepository.findAllActiveEmployees().stream().map(employeeMapper::map).toList();
+    public List<EmployeeResponse> getAllEmployees(boolean isActive) {
+        return employeeRepository.findByIsDisabled(!isActive).stream()
+                .map(employeeMapper::map)
+                .toList();
     }
 
     public EmployeeResponse getEmployeeById(long id) {
@@ -51,8 +57,12 @@ public class EmployeeService {
         return employeeMapper.map(findByLoginOrThrow(login));
     }
 
+    @Transactional
     public EmployeeResponse createEmployee(EmployeeCreateRequest employeeCreateRequest, String authUserLogin) {
         User user = UserMapper.mapEmployeeCreateRequestToUser(employeeCreateRequest);
+        if (employeeCreateRequest.password() != null && !employeeCreateRequest.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(employeeCreateRequest.password()));
+        }
         user = userRepository.save(user);
 
         Employee employee = employeeMapper.map(employeeCreateRequest);
@@ -82,6 +92,23 @@ public class EmployeeService {
                 employeeRepository.save(employee));
     }
 
+    public void disableEmployeeById(long id) {
+        Employee employee = findByIdOrThrow(id);
+        if (employee.isHasLessons()) {
+            try {
+                deleteEmployeeLessons(employee);
+            } catch (Exception e) {
+                log.error("lessons deletion failed", e);
+                throw e;
+            }
+        }
+        studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
+        employee.setDisabled(!employee.isDisabled());
+        employeeRepository.save(employee);
+    }
+
+    @Transactional
     public void deleteEmployeeById(long id) {
         Employee employee = findByIdOrThrow(id);
         if (employee.isHasLessons()) {
@@ -92,8 +119,14 @@ public class EmployeeService {
                 throw e;
             }
         }
-        employee.setDisabled(true);
-        employeeRepository.save(employee);
+        studentRepository.clearSupervisorForStudents(id);
+        studentRepository.clearScientificSupervisorForStudents(id);
+        User user = employee.getUser();
+        employeeRepository.delete(employee);
+        employeeRepository.flush();
+        if (user != null) {
+            userRepository.delete(user);
+        }
     }
 
     private Employee findByIdOrThrow(Long id) {
@@ -104,6 +137,7 @@ public class EmployeeService {
 
     private void doLessonsOperationForEmployee(LessonsOperation operation, Employee employee) {
         ParserEmployeeRequest request = new ParserEmployeeRequest(employee.getId());
+        log.info("Employee id from method: " + request);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Host", "parser_api:8000");

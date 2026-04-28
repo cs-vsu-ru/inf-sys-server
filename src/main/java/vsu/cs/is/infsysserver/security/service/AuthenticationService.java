@@ -5,19 +5,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vsu.cs.is.infsysserver.exception.GeneralException;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
+import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
 import vsu.cs.is.infsysserver.security.entity.dto.response.StudentAuthenticationResponse;
+import vsu.cs.is.infsysserver.security.entity.dto.response.TwoFactorRequiredResponse;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 import vsu.cs.is.infsysserver.security.entity.token.Token;
 import vsu.cs.is.infsysserver.security.entity.token.TokenRepository;
@@ -44,6 +46,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final LdapAuthentication ldapAuthentication;
     private final PasswordEncoder passwordEncoder;
+    private final VerificationCodeService verificationCodeService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -103,7 +106,7 @@ public class AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty()
+        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
         ) {
             return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
         }
@@ -114,12 +117,32 @@ public class AuthenticationService {
             repository.savePasswordByLogin(user.getLogin(), password);
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (user.isTwoFactorEnabled()) {
+            if (user.getEmail() == null || user.getEmail().isBlank()) {
+                return new ResponseEntity<>("У пользователя не указана почта для 2FA", HttpStatus.BAD_REQUEST);
+            }
+            try {
+                verificationCodeService.generateAndSendCode(user.getEmail());
+            } catch (GeneralException e) {
+                return new ResponseEntity<>(e.getMessage(), e.getStatus());
+            }
+            return ResponseEntity.ok(TwoFactorRequiredResponse.builder()
+                    .requiresTwoFactor(true)
+                    .email(user.getEmail())
+                    .build());
+        }
+
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);
 //        var refreshToken = jwtService.generateRefreshToken(userDetail);
@@ -128,6 +151,28 @@ public class AuthenticationService {
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .accessToken(jwtToken)
 //                .refreshToken(refreshToken)
+                .mainRole(user.getRole().name())
+                .build());
+    }
+
+    public ResponseEntity<?> verifyTwoFactor(VerifyTwoFactorRequest request) {
+        var user = repository.findByEmail(request.getEmail()).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>("Пользователь с такой почтой не найден", HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            verificationCodeService.validateAndConsume(request.getEmail(), request.getCode());
+        } catch (GeneralException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
+
+        var userDetail = UserMapper.mapUserToUserDetails(user);
+        var jwtToken = jwtService.generateToken(userDetail);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .accessToken(jwtToken)
                 .mainRole(user.getRole().name())
                 .build());
     }

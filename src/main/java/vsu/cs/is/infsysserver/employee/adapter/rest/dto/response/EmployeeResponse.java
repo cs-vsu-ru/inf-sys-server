@@ -40,6 +40,8 @@ public record EmployeeResponse(
         @Schema(description = "Проводит ли занятия", example = "false")
         Boolean hasLessons,
         @Schema(description = "Роль пользователя", example = "MODERATOR")
-        Role mainRole
+        Role mainRole,
+        @Schema(description = "Включена ли двухфакторная аутентификация", example = "false")
+        boolean twoFactorEnabled
 ) {
 }

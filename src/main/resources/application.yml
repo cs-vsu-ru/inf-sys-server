@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: framework
+
 spring:
   application:
     name: inf-sys-server
@@ -8,9 +11,21 @@ spring:
   jpa:
     database: postgresql
 
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 application:
   upload:
-    server-url: 'http://37.228.116.34'
+    server-url: 'https://cs.vsu.ru/is'
     base-files-folder: ${BASE_FILES_FOLDER}
   security:
     jwt:
@@ -18,9 +33,14 @@ application:
       refresh-token:
         expiration: 604800000 # 7 days
     ldap:
+      enabled: ${LDAP_ENABLED:true}
       host: csfs.cs.vsu.ru
       port: 389
       email-host: cs.vsu.ru
+    two-factor:
+      max-code-attempts: ${TWO_FACTOR_MAX_CODE_ATTEMPTS:5}
+      block-duration-minutes: ${TWO_FACTOR_BLOCK_DURATION_MINUTES:5}
+      resend-cooldown-seconds: ${TWO_FACTOR_RESEND_COOLDOWN_SECONDS:60}
   services:
     parser:
       base-url: ${PARSER_URL}

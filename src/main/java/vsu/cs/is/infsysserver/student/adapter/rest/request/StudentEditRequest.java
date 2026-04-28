@@ -28,4 +28,10 @@ public class StudentEditRequest {
     private Long supervisor;
 
     private String password;
+
+    private String courseJob;
+
+    private Long scientificSupervisor;
+
+    private Long department;
 }

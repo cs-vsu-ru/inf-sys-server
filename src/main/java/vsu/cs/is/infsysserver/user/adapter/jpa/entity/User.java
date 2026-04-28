@@ -43,6 +43,10 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "two_factor_enabled")
+    @Builder.Default
+    private boolean twoFactorEnabled = false;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
