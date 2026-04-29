@@ -27,7 +27,11 @@ public class TwoFactorService {
             return new ResponseEntity<>("Укажите email для подключения 2FA", HttpStatus.BAD_REQUEST);
         }
 
-        verificationCodeService.generateAndSendCode(targetEmail);
+        try {
+            verificationCodeService.generateAndSendCode(targetEmail);
+        } catch (GeneralException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -65,7 +69,11 @@ public class TwoFactorService {
             return new ResponseEntity<>("У пользователя не указана почта для 2FA", HttpStatus.BAD_REQUEST);
         }
 
-        verificationCodeService.generateAndSendCode(user.getEmail());
+        try {
+            verificationCodeService.generateAndSendCode(user.getEmail());
+        } catch (GeneralException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
         return ResponseEntity.ok().build();
     }
 

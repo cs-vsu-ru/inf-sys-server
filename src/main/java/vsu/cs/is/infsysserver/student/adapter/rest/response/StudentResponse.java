@@ -3,7 +3,11 @@ package vsu.cs.is.infsysserver.student.adapter.rest.response;
 
 import lombok.Data;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
+import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Department;
 import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
+import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
+
+import java.util.Optional;
 
 @Data
 public class StudentResponse {
@@ -34,6 +38,11 @@ public class StudentResponse {
 
     private String login;
 
+    private String courseJob;
+
+    private Long scientificSupervisor;
+
+    private String departmentInfo;
 
     public StudentResponse(Student student) {
         this.id = student.getId();
@@ -47,7 +56,16 @@ public class StudentResponse {
         this.group = student.getGroup();
         this.startYear = student.getStartYear();
         this.endYear = student.getEndYear();
-        this.supervisor = student.getSupervisor().getId();
+        this.supervisor = Optional.ofNullable(student.getSupervisor())
+                .map(User::getId)
+                .orElse(null);
         this.imageUrl = student.getImageUrl();
+        this.courseJob = student.getCourseJob();
+        this.scientificSupervisor = Optional.ofNullable(student.getScientificSupervisor())
+                .map(User::getId)
+                .orElse(null);
+        this.departmentInfo = Optional.ofNullable(student.getDepartment())
+                .map(Department::getDescription)
+                .orElse(null);
     }
 }

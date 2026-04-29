@@ -33,10 +33,8 @@ public class StudentController {
     private final JwtService jwtService;
 
     @GetMapping("/students")
-    public List<StudentResponse> getAll() {
-        return studentRepository.findAll().stream()
-                .map(StudentResponse::new)
-                .toList();
+    public List<StudentResponse> getAll(@RequestParam(name = "isActive", defaultValue = "true") boolean isActive) {
+        return studentService.getAllStudents(isActive);
     }
 
     @PostMapping("/students")
@@ -53,7 +51,12 @@ public class StudentController {
 
     @DeleteMapping("/students/{id}")
     public void delete(@PathVariable Long id) {
-        studentRepository.deleteById(id);
+        studentService.deleteStudent(id);
+    }
+
+    @PatchMapping("/students/{id}/disable")
+    public void disable(@PathVariable Long id) {
+        studentService.disableStudent(id);
     }
 
     @GetMapping("/student/{id}")
