@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vsu.cs.is.infsysserver.exception.GeneralException;
+import vsu.cs.is.infsysserver.exception.UnauthorizedException;
+import vsu.cs.is.infsysserver.exception.NotFoundException;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
@@ -106,9 +107,8 @@ public class AuthenticationService {
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)
-        ) {
-            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)) {
+            throw new UnauthorizedException("Неверный логин или пароль");
         }
 
         var user = optionalUser.get();
@@ -125,12 +125,12 @@ public class AuthenticationService {
                     )
             );
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException("Неверный логин или пароль");
         }
 
         if (user.isTwoFactorEnabled()) {
             if (user.getEmail() == null || user.getEmail().isBlank()) {
-                return new ResponseEntity<>("У пользователя не указана почта для 2FA", HttpStatus.BAD_REQUEST);
+                throw new GeneralException("У пользователя не указана почта для 2FA");
             }
             try {
                 verificationCodeService.generateAndSendCode(user.getEmail());
@@ -156,16 +156,10 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> verifyTwoFactor(VerifyTwoFactorRequest request) {
-        var user = repository.findByEmail(request.getEmail()).orElse(null);
-        if (user == null) {
-            return new ResponseEntity<>("Пользователь с такой почтой не найден", HttpStatus.NOT_FOUND);
-        }
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 
-        try {
-            verificationCodeService.validateAndConsume(request.getEmail(), request.getCode());
-        } catch (GeneralException e) {
-            return new ResponseEntity<>(e.getMessage(), e.getStatus());
-        }
+        verificationCodeService.validateAndConsume(request.getEmail(), request.getCode());
 
         var userDetail = UserMapper.mapUserToUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetail);

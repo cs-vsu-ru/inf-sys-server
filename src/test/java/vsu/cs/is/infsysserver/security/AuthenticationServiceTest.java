@@ -13,6 +13,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import vsu.cs.is.infsysserver.exception.GeneralException;
+import vsu.cs.is.infsysserver.exception.NotFoundException;
+import vsu.cs.is.infsysserver.exception.UnauthorizedException;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
@@ -69,11 +71,8 @@ class AuthenticationServiceTest {
         doReturn(Optional.empty()).when(userRepository).findByLogin("unknown");
         // LDAP не вызывается — short-circuit при пустом Optional
 
-        // when
-        ResponseEntity<?> response = authenticationService.authenticate(request);
-
         // then
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate(request));
     }
 
     @Test
@@ -85,11 +84,8 @@ class AuthenticationServiceTest {
         doReturn(Optional.of(user)).when(userRepository).findByLogin(user.getLogin());
         doReturn(false).when(ldapAuthentication).isConnectionSuccess(request);
 
-        // when
-        ResponseEntity<?> response = authenticationService.authenticate(request);
-
         // then
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate(request));
     }
 
     @Test
@@ -104,11 +100,8 @@ class AuthenticationServiceTest {
         doThrow(new BadCredentialsException("bad credentials"))
                 .when(authenticationManager).authenticate(any());
 
-        // when
-        ResponseEntity<?> response = authenticationService.authenticate(request);
-
         // then
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate(request));
     }
 
     @Test
@@ -192,11 +185,8 @@ class AuthenticationServiceTest {
         doReturn(true).when(ldapAuthentication).isConnectionSuccess(request);
         doReturn(false).when(passwordEncoder).matches("raw_pass", user.getPassword());
 
-        // when
-        ResponseEntity<?> response = authenticationService.authenticate(request);
-
         // then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThrows(GeneralException.class, () -> authenticationService.authenticate(request));
         verify(verificationCodeService, never()).generateAndSendCode(any());
     }
 
@@ -231,11 +221,8 @@ class AuthenticationServiceTest {
         var request = new VerifyTwoFactorRequest("ghost@cs.vsu.ru", "000000");
         doReturn(Optional.empty()).when(userRepository).findByEmail("ghost@cs.vsu.ru");
 
-        // when
-        ResponseEntity<?> response = authenticationService.verifyTwoFactor(request);
-
         // then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(NotFoundException.class, () -> authenticationService.verifyTwoFactor(request));
         verify(verificationCodeService, never()).validateAndConsume(any(), any());
     }
 

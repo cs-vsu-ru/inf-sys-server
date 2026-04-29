@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import vsu.cs.is.infsysserver.exception.message.ErrorMessage;
+import vsu.cs.is.infsysserver.exception.dto.ErrorResponse;
 import vsu.cs.is.infsysserver.news.adapter.rest.dto.request.NewsCreateRequest;
 import vsu.cs.is.infsysserver.news.adapter.rest.dto.request.NewsUpdateRequest;
 import vsu.cs.is.infsysserver.news.adapter.rest.dto.response.NewsResponse;
@@ -52,7 +52,7 @@ public interface NewsAPI {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -94,7 +94,7 @@ public interface NewsAPI {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
@@ -116,7 +116,7 @@ public interface NewsAPI {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorMessage.class)
+                                    schema = @Schema(implementation = ErrorResponse.class)
                             )
                     }
             )
