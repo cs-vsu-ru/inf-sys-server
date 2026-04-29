@@ -66,6 +66,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:${versions["mapstruct"]}")
     implementation("org.mapstruct:mapstruct:${versions["mapstruct"]}")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
 
     // testing
     testImplementation("org.springframework.security:spring-security-test")
