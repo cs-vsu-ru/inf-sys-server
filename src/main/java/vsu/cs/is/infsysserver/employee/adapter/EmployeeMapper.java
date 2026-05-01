@@ -15,6 +15,7 @@ public interface EmployeeMapper {
     @Mapping(source = "user.email", target = "email")
     @Mapping(source = "user.role", target = "mainRole")
     @Mapping(source = "user.twoFactorEnabled", target = "twoFactorEnabled")
+    @Mapping(target = "isActive", expression = "java(!employee.isDisabled())")
     EmployeeResponse map(Employee employee);
 
     @Mapping(source = "user.firstName", target = "firstName")
@@ -22,6 +23,7 @@ public interface EmployeeMapper {
     @Mapping(source = "user.email", target = "email")
     @Mapping(source = "user.login", target = "login")
     @Mapping(source = "user.role", target = "mainRole")
+    @Mapping(target = "isActive", expression = "java(!employee.isDisabled())")
     EmployeeAdminResponse mapAdmin(Employee employee);
 
     Employee map(EmployeeCreateRequest employeeCreateRequest);

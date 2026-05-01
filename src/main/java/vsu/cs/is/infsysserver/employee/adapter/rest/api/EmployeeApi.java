@@ -32,10 +32,8 @@ public interface EmployeeApi {
                     )
             }
     )
-    @Operation(summary = "Возваращает всех сотрудников")
-    ResponseEntity<List<EmployeeResponse>> getAllEmployees(
-            @Parameter(description = "Фильтр по активности: true — только активные (по умолчанию), "
-                    + "false — только отключённые") boolean isActive);
+    @Operation(summary = "Возваращает всех сотрудников (неактивные в конце списка)")
+    ResponseEntity<List<EmployeeResponse>> getAllEmployees();
 
     @ApiResponses(value = {
             @ApiResponse(

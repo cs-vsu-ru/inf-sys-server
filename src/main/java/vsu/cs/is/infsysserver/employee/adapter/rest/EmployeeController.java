@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.employee.EmployeeService;
 import vsu.cs.is.infsysserver.employee.adapter.rest.api.EmployeeApi;
@@ -31,9 +30,8 @@ public class EmployeeController implements EmployeeApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> getAllEmployees(
-            @RequestParam(name = "isActive", defaultValue = "true") boolean isActive) {
-        return ok(employeeService.getAllEmployees(isActive));
+    public ResponseEntity<List<EmployeeResponse>> getAllEmployees() {
+        return ok(employeeService.getAllEmployees());
     }
 
     @Override

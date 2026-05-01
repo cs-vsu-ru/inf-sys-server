@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,8 @@ public class StudentService {
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<StudentResponse> getAllStudents(boolean isActive) {
-        return studentRepository.findByIsDisabled(!isActive).stream()
+    public List<StudentResponse> getAllStudents() {
+        return studentRepository.findAll(Sort.by(Sort.Order.asc("isDisabled"), Sort.Order.asc("id"))).stream()
                 .map(StudentResponse::new)
                 .toList();
     }

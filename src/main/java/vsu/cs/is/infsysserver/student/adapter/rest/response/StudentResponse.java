@@ -44,6 +44,8 @@ public class StudentResponse {
 
     private String departmentInfo;
 
+    private Boolean isActive;
+
     public StudentResponse(Student student) {
         this.id = student.getId();
         this.role = student.getUser().getRole();
@@ -67,5 +69,6 @@ public class StudentResponse {
         this.departmentInfo = Optional.ofNullable(student.getDepartment())
                 .map(Department::getDescription)
                 .orElse(null);
+        this.isActive = !student.isDisabled();
     }
 }
