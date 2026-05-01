@@ -35,8 +35,8 @@ public class StudentController {
     private final JwtService jwtService;
 
     @GetMapping("/students")
-    public List<StudentResponse> getAll(@RequestParam(name = "isActive", defaultValue = "true") boolean isActive) {
-        return studentService.getAllStudents(isActive);
+    public List<StudentResponse> getAll() {
+        return studentService.getAllStudents();
     }
 
     @PostMapping("/students")

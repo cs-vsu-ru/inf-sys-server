@@ -42,6 +42,8 @@ public record EmployeeResponse(
         @Schema(description = "Роль пользователя", example = "MODERATOR")
         Role mainRole,
         @Schema(description = "Включена ли двухфакторная аутентификация", example = "false")
-        boolean twoFactorEnabled
+        boolean twoFactorEnabled,
+        @Schema(description = "Активен ли сотрудник", example = "true")
+        Boolean isActive
 ) {
 }

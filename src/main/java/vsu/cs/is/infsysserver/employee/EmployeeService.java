@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.employee;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +40,8 @@ public class EmployeeService {
     private final ApplicationProperties properties;
     private final PasswordEncoder passwordEncoder;
 
-    public List<EmployeeResponse> getAllEmployees(boolean isActive) {
-        return employeeRepository.findByIsDisabled(!isActive).stream()
+    public List<EmployeeResponse> getAllEmployees() {
+        return employeeRepository.findAll(Sort.by(Sort.Order.asc("isDisabled"), Sort.Order.asc("id"))).stream()
                 .map(employeeMapper::map)
                 .toList();
     }

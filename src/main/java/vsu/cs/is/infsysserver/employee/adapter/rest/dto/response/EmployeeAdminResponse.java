@@ -42,6 +42,8 @@ public record EmployeeAdminResponse(
         @Schema(description = "Проводит ли занятия", example = "false")
         Boolean hasLessons,
         @Schema(description = "Роль пользователя", example = "MODERATOR")
-        Role mainRole
+        Role mainRole,
+        @Schema(description = "Активен ли сотрудник", example = "true")
+        Boolean isActive
 ) {
 }
