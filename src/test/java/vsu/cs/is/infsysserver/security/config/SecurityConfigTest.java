@@ -29,6 +29,7 @@ import vsu.cs.is.infsysserver.student.adapter.StudentService;
 import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
 import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
 import vsu.cs.is.infsysserver.student.adapter.rest.StudentController;
+import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentImportResponse;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
 import vsu.cs.is.infsysserver.upload.UploadService;
 import vsu.cs.is.infsysserver.upload.adapter.rest.UploadController;
@@ -45,6 +46,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,6 +69,12 @@ class SecurityConfigTest {
 
     @MockBean
     private AuthenticationProvider authenticationProvider;
+
+    @MockBean
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
+
+    @MockBean
+    private CustomAccessDeniedHandler accessDeniedHandler;
 
     @MockBean
     private UserDetailsService userDetailsService;
@@ -100,6 +108,7 @@ class SecurityConfigTest {
         given(employeeService.getEmployeeByLogin(any())).willReturn(employeeResponse());
         given(uploadService.uploadFile(any())).willReturn("/api/files/test.png");
         given(studentService.getCurrentStudent()).willReturn(studentResponse());
+        given(studentService.importStudents(any())).willReturn(new StudentImportResponse());
         given(studentRepository.findById(anyLong())).willReturn(Optional.of(studentEntity()));
     }
 
@@ -174,6 +183,37 @@ class SecurityConfigTest {
         mockMvc.perform(multipart("/api/upload-file")
                         .file("file", "hello".getBytes())
                         .with(moderatorAuth("moderator")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void employeeDisableShouldRequireAdminPermission() throws Exception {
+        mockMvc.perform(patch("/api/employees/1/disable"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(patch("/api/employees/1/disable")
+                        .with(moderatorAuth("moderator")))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(patch("/api/employees/1/disable")
+                        .with(adminAuth("admin")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void studentImportShouldRequireAdminPermission() throws Exception {
+        mockMvc.perform(multipart("/api/students/import")
+                        .file("file", "hello".getBytes()))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(multipart("/api/students/import")
+                        .file("file", "hello".getBytes())
+                        .with(moderatorAuth("moderator")))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(multipart("/api/students/import")
+                        .file("file", "hello".getBytes())
+                        .with(adminAuth("admin")))
                 .andExpect(status().isOk());
     }
 

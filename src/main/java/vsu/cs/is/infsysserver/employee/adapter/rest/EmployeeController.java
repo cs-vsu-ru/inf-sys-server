@@ -77,6 +77,7 @@ public class EmployeeController implements EmployeeApi {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/disable")
     public ResponseEntity<EmployeeResponse> disableEmployeeById(@PathVariable Long id) {
         employeeService.disableEmployeeById(id);
