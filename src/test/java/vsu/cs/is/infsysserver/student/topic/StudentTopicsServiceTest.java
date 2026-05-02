@@ -7,6 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -22,8 +26,11 @@ import vsu.cs.is.infsysserver.student.topic.adapter.rest.dto.response.StudentTop
 import vsu.cs.is.infsysserver.student.topic.adapter.rest.dto.response.StudentTopicsResponse;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,6 +128,61 @@ class StudentTopicsServiceTest {
         assertEquals("Петров Алексей Алексеевич", savedAssignment.getSupervisorFullName());
         assertEquals(15L, savedAssignment.getSupervisorEmployee().getId());
         assertNotNull(savedAssignment.getImportedAt());
+    }
+
+    @Test
+    @DisplayName("Импорт XLSX кафедрального формата связывает тему со студентом по ФИО")
+    void importFile_WhenDepartmentXlsxIsValid_CreatesAssignment() throws IOException {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "department-topics.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                departmentTemplateXlsx()
+        );
+
+        Employee employee = new Employee();
+        employee.setId(15L);
+        employee.setPatronymic("Владимирович");
+        employee.setUser(User.builder()
+                .login("sychev_a_v")
+                .lastName("Сычев")
+                .firstName("Андрей")
+                .build());
+
+        Student student = Student.builder()
+                .id(10L)
+                .patronymic("Иванович")
+                .user(User.builder()
+                        .login("ivanov_i_i")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .build())
+                .build();
+
+        when(studentRepository.findAll()).thenReturn(List.of(student));
+        when(studentTopicAssignmentRepository.findByStudent_Id(10L)).thenReturn(Optional.empty());
+        when(employeeRepository.findAll()).thenReturn(List.of(employee));
+        when(studentTopicAssignmentRepository.save(any(StudentTopicAssignment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        StudentTopicsImportResponse response = studentTopicsService.importFile(file);
+
+        assertEquals(1, response.processedRows(), response.toString());
+        assertEquals(1, response.createdRows(), response.toString());
+        assertTrue(response.errors().isEmpty(), response.errors().toString());
+
+        ArgumentCaptor<StudentTopicAssignment> assignmentCaptor =
+                ArgumentCaptor.forClass(StudentTopicAssignment.class);
+        verify(studentTopicAssignmentRepository).save(assignmentCaptor.capture());
+
+        StudentTopicAssignment savedAssignment = assignmentCaptor.getValue();
+        assertEquals(10L, savedAssignment.getStudent().getId());
+        assertEquals("ivanov_i_i", savedAssignment.getStudentLogin());
+        assertEquals("Иванов Иван Иванович", savedAssignment.getStudentFullName());
+        assertEquals("Классификация текстов", savedAssignment.getCourseWorkTopic());
+        assertEquals("Классификация текстов с помощью BERT", savedAssignment.getThesisTopic());
+        assertEquals("sychev_a_v", savedAssignment.getSupervisorLogin());
+        assertEquals(15L, savedAssignment.getSupervisorEmployee().getId());
     }
 
     @Test
@@ -259,6 +321,28 @@ class StudentTopicsServiceTest {
     }
 
     @Test
+    @DisplayName("Получение тем по ID студента возвращает DTO")
+    void getTopicsByStudentId_WhenAssignmentExists_ReturnsResponse() {
+        StudentTopicAssignment assignment = StudentTopicAssignment.builder()
+                .student(Student.builder().id(10L).build())
+                .studentLogin("ivanov_i_i")
+                .studentFullName("Иванов Иван Иванович")
+                .courseWorkTopic("Тема курсовой")
+                .supervisorFullName("Петров Алексей Алексеевич")
+                .build();
+
+        when(studentTopicAssignmentRepository.findByStudent_Id(10L))
+                .thenReturn(Optional.of(assignment));
+
+        Optional<StudentTopicsResponse> response = studentTopicsService.getTopicsByStudentId(10L);
+
+        assertTrue(response.isPresent());
+        assertEquals(10L, response.get().studentId());
+        assertEquals("Иванов Иван Иванович", response.get().studentFullName());
+        assertEquals("Тема курсовой", response.get().courseWorkTopic());
+    }
+
+    @Test
     @DisplayName("Импорт по ссылке Google Sheets запускает тот же импорт")
     void importGoogleSheet_WhenUrlIsValid_ImportsRows() {
         String googleSheetUrl = "https://docs.google.com/spreadsheets/d/test-sheet-id/edit#gid=12345";
@@ -310,5 +394,32 @@ class StudentTopicsServiceTest {
 
         assertEquals(400, exception.getStatusCode().value());
         assertTrue(exception.getReason().contains("docs.google.com"));
+    }
+
+    private static byte[] departmentTemplateXlsx() throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("2024");
+            Row titleRow = sheet.createRow(0);
+            titleRow.createCell(2).setCellValue("2024");
+            Row groupRow = sheet.createRow(1);
+            groupRow.createCell(1).setCellValue("4 курс, ВКР");
+
+            Row headerRow = sheet.createRow(2);
+            headerRow.createCell(1).setCellValue("студент");
+            headerRow.createCell(3).setCellValue("ТЕМА курсовой работы (3 курс)");
+            headerRow.createCell(4).setCellValue("ФИО научного руководителя");
+            headerRow.createCell(5).setCellValue("ТЕМА ВКР");
+
+            Row dataRow = sheet.createRow(3);
+            dataRow.createCell(0).setCellValue(1);
+            dataRow.createCell(1).setCellValue("Иванов");
+            dataRow.createCell(2).setCellValue("Иван Иванович");
+            dataRow.createCell(3).setCellValue("Классификация текстов");
+            dataRow.createCell(4).setCellValue("Сычев А.В.");
+            dataRow.createCell(5).setCellValue("Классификация текстов с помощью BERT");
+
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
     }
 }

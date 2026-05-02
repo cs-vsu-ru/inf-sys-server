@@ -46,6 +46,14 @@ public class StudentTopicsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/students/{studentId}/topics")
+    public ResponseEntity<StudentTopicsResponse> getTopicsByStudentId(@PathVariable Long studentId) {
+        return studentTopicsService.getTopicsByStudentId(studentId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/student/account/topics")
     public ResponseEntity<StudentTopicsResponse> getCurrentStudentTopics() {

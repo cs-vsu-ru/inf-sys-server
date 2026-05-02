@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,18 +55,59 @@ public class StudentTopicsService {
 
     private static final String HEADER_STUDENT_LOGIN = "Логин студента";
     private static final String HEADER_STUDENT_FULL_NAME = "ФИО студента";
+    private static final String HEADER_STUDENT_ID = "ID студента";
     private static final String HEADER_COURSE_WORK_TOPIC = "Тема курсовой";
     private static final String HEADER_THESIS_TOPIC = "Тема ВКР";
     private static final String HEADER_SUPERVISOR_LOGIN = "Логин научного руководителя";
     private static final String HEADER_SUPERVISOR_FULL_NAME = "ФИО научного руководителя";
+    private static final String HEADER_SUPERVISOR_ID = "ID научного руководителя";
     private static final String GOOGLE_SHEETS_HOST = "docs.google.com";
-    private static final List<String> REQUIRED_HEADERS = List.of(
+    private static final List<String> STUDENT_ID_HEADERS = List.of(
+            HEADER_STUDENT_ID,
+            "student_id",
+            "id студента",
+            "ид студента"
+    );
+    private static final List<String> STUDENT_LOGIN_HEADERS = List.of(
             HEADER_STUDENT_LOGIN,
+            "login студента",
+            "student_login"
+    );
+    private static final List<String> STUDENT_FULL_NAME_HEADERS = List.of(
             HEADER_STUDENT_FULL_NAME,
+            "фио студента",
+            "студент",
+            "фио обучающегося"
+    );
+    private static final List<String> COURSE_WORK_TOPIC_HEADERS = List.of(
             HEADER_COURSE_WORK_TOPIC,
+            "тема курсовой работы",
+            "тема курсовой работы (3 курс)",
+            "тема"
+    );
+    private static final List<String> THESIS_TOPIC_HEADERS = List.of(
             HEADER_THESIS_TOPIC,
+            "тема выпускной квалификационной работы",
+            "тема дипломной работы",
+            "тема диплома"
+    );
+    private static final List<String> SUPERVISOR_ID_HEADERS = List.of(
+            HEADER_SUPERVISOR_ID,
+            "supervisor_id",
+            "id руководителя",
+            "id научного руководителя"
+    );
+    private static final List<String> SUPERVISOR_LOGIN_HEADERS = List.of(
             HEADER_SUPERVISOR_LOGIN,
-            HEADER_SUPERVISOR_FULL_NAME
+            "login научного руководителя",
+            "supervisor_login"
+    );
+    private static final List<String> SUPERVISOR_FULL_NAME_HEADERS = List.of(
+            HEADER_SUPERVISOR_FULL_NAME,
+            "фио преподавателя",
+            "преподаватель",
+            "научный руководитель",
+            "руководитель"
     );
     private static final List<Charset> CSV_CHARSETS = List.of(
             StandardCharsets.UTF_8,
@@ -107,15 +149,28 @@ public class StudentTopicsService {
                 .map(StudentTopicsResponse::from);
     }
 
+    public Optional<StudentTopicsResponse> getTopicsByStudentId(Long studentId) {
+        return studentTopicAssignmentRepository.findByStudent_Id(studentId)
+                .map(StudentTopicsResponse::from);
+    }
+
     private StudentTopicsImportResponse importRows(List<ParsedStudentTopicRow> rows) {
         Set<String> seenStudentLogins = new HashSet<>();
+        Set<Long> seenStudentIds = new HashSet<>();
         List<StudentTopicsImportErrorResponse> errors = new ArrayList<>();
+        int processedRows = 0;
         int createdRows = 0;
         int updatedRows = 0;
 
         for (ParsedStudentTopicRow row : rows) {
+            if (!row.hasStudentReference() && !row.hasSupervisorReference()) {
+                continue;
+            }
+
+            processedRows++;
             String studentLogin = normalizeLogin(row.studentLogin());
-            String validationError = validateRow(row, studentLogin);
+            Long studentId = parseLong(row.studentId());
+            String validationError = validateRow(row, studentLogin, studentId);
             if (validationError != null) {
                 errors.add(new StudentTopicsImportErrorResponse(
                         row.rowNumber(),
@@ -124,29 +179,34 @@ public class StudentTopicsService {
                 ));
                 continue;
             }
-            if (!seenStudentLogins.add(studentLogin)) {
+
+            String duplicateKey = studentId != null ? "ID " + studentId : studentLogin;
+            boolean duplicate = studentId != null
+                    ? !seenStudentIds.add(studentId)
+                    : StringUtils.hasText(studentLogin) && !seenStudentLogins.add(studentLogin);
+            if (duplicate) {
                 errors.add(new StudentTopicsImportErrorResponse(
                         row.rowNumber(),
                         studentLogin,
-                        "Дублирующийся логин студента в файле"
+                        "Дублирующийся студент в файле: " + duplicateKey
                 ));
                 continue;
             }
 
             try {
-                Student student = findStudentByLogin(studentLogin);
-                Employee supervisor = findSupervisorByLogin(row.supervisorLogin());
+                Student student = findStudent(row, studentLogin, studentId);
+                Employee supervisor = findSupervisor(row);
 
                 Optional<StudentTopicAssignment> existingAssignment = findExistingAssignment(student, studentLogin);
                 StudentTopicAssignment assignment = existingAssignment.orElseGet(StudentTopicAssignment::new);
 
                 assignment.setStudent(student);
                 assignment.setStudentLogin(normalizeLogin(student.getUser().getLogin()));
-                assignment.setStudentFullName(normalizeText(row.studentFullName()));
+                assignment.setStudentFullName(normalizeText(resolveStudentFullName(row, student)));
                 assignment.setCourseWorkTopic(normalizeNullableText(row.courseWorkTopic()));
                 assignment.setThesisTopic(normalizeNullableText(row.thesisTopic()));
                 assignment.setSupervisorLogin(normalizeLogin(supervisor.getUser().getLogin()));
-                assignment.setSupervisorFullName(normalizeText(row.supervisorFullName()));
+                assignment.setSupervisorFullName(normalizeText(resolveEmployeeFullName(row, supervisor)));
                 assignment.setSupervisorEmployee(supervisor);
                 assignment.setImportedAt(LocalDateTime.now());
 
@@ -167,7 +227,7 @@ public class StudentTopicsService {
         }
 
         return new StudentTopicsImportResponse(
-                rows.size(),
+                processedRows,
                 createdRows,
                 updatedRows,
                 errors.size(),
@@ -177,7 +237,9 @@ public class StudentTopicsService {
 
     private Optional<StudentTopicAssignment> findExistingAssignment(Student student, String studentLogin) {
         return studentTopicAssignmentRepository.findByStudent_Id(student.getId())
-                .or(() -> studentTopicAssignmentRepository.findByStudentLogin(studentLogin));
+                .or(() -> StringUtils.hasText(studentLogin)
+                        ? studentTopicAssignmentRepository.findByStudentLogin(studentLogin)
+                        : Optional.empty());
     }
 
     private List<ParsedStudentTopicRow> parseRows(MultipartFile file) {
@@ -211,6 +273,11 @@ public class StudentTopicsService {
     }
 
     private List<ParsedStudentTopicRow> parseCsv(byte[] bytes) {
+        String utf8Content = new String(bytes, StandardCharsets.UTF_8);
+        if (!utf8Content.contains("\uFFFD")) {
+            return parseCsv(bytes, StandardCharsets.UTF_8);
+        }
+
         ResponseStatusException lastException = null;
 
         for (Charset charset : CSV_CHARSETS) {
@@ -248,18 +315,20 @@ public class StudentTopicsService {
 
         try (CSVParser parser = csvFormat.parse(new StringReader(content))) {
             Map<String, Integer> headerPositions = normalizeHeaderPositions(parser.getHeaderMap());
-            ensureRequiredHeaders(headerPositions.keySet());
+            ensureUsableHeaders(headerPositions);
 
             List<ParsedStudentTopicRow> rows = new ArrayList<>();
             for (CSVRecord record : parser) {
                 ParsedStudentTopicRow row = new ParsedStudentTopicRow(
                         (int) record.getRecordNumber() + 1,
-                        csvValue(record, headerPositions, HEADER_STUDENT_LOGIN),
-                        csvValue(record, headerPositions, HEADER_STUDENT_FULL_NAME),
-                        csvValue(record, headerPositions, HEADER_COURSE_WORK_TOPIC),
-                        csvValue(record, headerPositions, HEADER_THESIS_TOPIC),
-                        csvValue(record, headerPositions, HEADER_SUPERVISOR_LOGIN),
-                        csvValue(record, headerPositions, HEADER_SUPERVISOR_FULL_NAME)
+                        csvValue(record, headerPositions, STUDENT_ID_HEADERS),
+                        csvValue(record, headerPositions, STUDENT_LOGIN_HEADERS),
+                        csvValue(record, headerPositions, STUDENT_FULL_NAME_HEADERS),
+                        csvValue(record, headerPositions, COURSE_WORK_TOPIC_HEADERS),
+                        csvValue(record, headerPositions, THESIS_TOPIC_HEADERS),
+                        csvValue(record, headerPositions, SUPERVISOR_ID_HEADERS),
+                        csvValue(record, headerPositions, SUPERVISOR_LOGIN_HEADERS),
+                        csvValue(record, headerPositions, SUPERVISOR_FULL_NAME_HEADERS)
                 );
                 if (!row.isBlank()) {
                     rows.add(row);
@@ -282,33 +351,27 @@ public class StudentTopicsService {
             }
 
             Sheet sheet = workbook.getSheetAt(0);
-            Row headerRow = sheet.getRow(sheet.getFirstRowNum());
-            if (headerRow == null) {
+            HeaderMapping headerMapping = findHeaderMapping(sheet, new DataFormatter());
+            if (headerMapping == null) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        "В Excel-файле отсутствует строка заголовков"
+                        "В Excel-файле не найдены колонки студента, темы и научного руководителя"
                 );
             }
 
-            DataFormatter formatter = new DataFormatter();
-            Map<String, Integer> headerPositions = new LinkedHashMap<>();
-            headerRow.forEach(cell -> headerPositions.put(
-                    normalizeHeader(formatter.formatCellValue(cell)),
-                    cell.getColumnIndex()
-            ));
-            ensureRequiredHeaders(headerPositions.keySet());
-
             List<ParsedStudentTopicRow> rows = new ArrayList<>();
-            for (int rowIndex = sheet.getFirstRowNum() + 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            for (int rowIndex = headerMapping.headerRowIndex() + 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
                 ParsedStudentTopicRow parsedRow = new ParsedStudentTopicRow(
                         rowIndex + 1,
-                        xlsxValue(row, headerPositions, HEADER_STUDENT_LOGIN, formatter),
-                        xlsxValue(row, headerPositions, HEADER_STUDENT_FULL_NAME, formatter),
-                        xlsxValue(row, headerPositions, HEADER_COURSE_WORK_TOPIC, formatter),
-                        xlsxValue(row, headerPositions, HEADER_THESIS_TOPIC, formatter),
-                        xlsxValue(row, headerPositions, HEADER_SUPERVISOR_LOGIN, formatter),
-                        xlsxValue(row, headerPositions, HEADER_SUPERVISOR_FULL_NAME, formatter)
+                        xlsxValue(row, headerMapping.studentIdColumn(), headerMapping.formatter()),
+                        xlsxValue(row, headerMapping.studentLoginColumn(), headerMapping.formatter()),
+                        xlsxStudentFullName(row, headerMapping),
+                        xlsxValue(row, headerMapping.courseWorkTopicColumn(), headerMapping.formatter()),
+                        xlsxValue(row, headerMapping.thesisTopicColumn(), headerMapping.formatter()),
+                        xlsxValue(row, headerMapping.supervisorIdColumn(), headerMapping.formatter()),
+                        xlsxValue(row, headerMapping.supervisorLoginColumn(), headerMapping.formatter()),
+                        xlsxValue(row, headerMapping.supervisorFullNameColumn(), headerMapping.formatter())
                 );
                 if (!parsedRow.isBlank()) {
                     rows.add(parsedRow);
@@ -324,47 +387,145 @@ public class StudentTopicsService {
         }
     }
 
-    private static String csvValue(CSVRecord record, Map<String, Integer> headerPositions, String headerName) {
-        Integer position = headerPositions.get(normalizeHeader(headerName));
+    private static String csvValue(CSVRecord record, Map<String, Integer> headerPositions, List<String> headerNames) {
+        Integer position = findColumn(headerPositions, headerNames);
         if (position == null || position >= record.size()) {
             return "";
         }
         return record.get(position);
     }
 
-    private static String xlsxValue(Row row, Map<String, Integer> headerPositions, String headerName,
-                                    DataFormatter formatter) {
-        if (row == null) {
+    private static String xlsxValue(Row row, Integer position, DataFormatter formatter) {
+        if (row == null || position == null) {
             return "";
         }
-        Integer position = headerPositions.get(normalizeHeader(headerName));
-        if (position == null || row.getCell(position) == null) {
+        if (row.getCell(position) == null) {
             return "";
         }
         return formatter.formatCellValue(row.getCell(position));
     }
 
+    private static String xlsxStudentFullName(Row row, HeaderMapping headerMapping) {
+        String fullName = xlsxValue(row, headerMapping.studentFullNameColumn(), headerMapping.formatter());
+        if (!headerMapping.studentNameContinuesInNextColumn()) {
+            return fullName;
+        }
+        String nextPart = xlsxValue(
+                row,
+                headerMapping.studentFullNameColumn() + 1,
+                headerMapping.formatter()
+        );
+        return normalizeText(fullName + " " + nextPart);
+    }
+
     private static Map<String, Integer> normalizeHeaderPositions(Map<String, Integer> rawHeaderPositions) {
         return rawHeaderPositions.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> normalizeHeader(entry.getKey()),
+                        entry -> normalizeHeaderKey(entry.getKey()),
                         Map.Entry::getValue,
                         (left, right) -> left,
                         LinkedHashMap::new
                 ));
     }
 
-    private static void ensureRequiredHeaders(Set<String> availableHeaders) {
-        List<String> missingHeaders = REQUIRED_HEADERS.stream()
-                .filter(header -> !availableHeaders.contains(normalizeHeader(header)))
-                .toList();
-
-        if (!missingHeaders.isEmpty()) {
+    private static void ensureUsableHeaders(Map<String, Integer> headerPositions) {
+        if (findColumn(headerPositions, STUDENT_ID_HEADERS) == null
+                && findColumn(headerPositions, STUDENT_LOGIN_HEADERS) == null
+                && findColumn(headerPositions, STUDENT_FULL_NAME_HEADERS) == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "В файле отсутствуют обязательные колонки: "
-                            + String.join(", ", missingHeaders)
+                    "В файле должна быть колонка ID, логина или ФИО студента"
             );
+        }
+        if (findColumn(headerPositions, COURSE_WORK_TOPIC_HEADERS) == null
+                && findColumn(headerPositions, THESIS_TOPIC_HEADERS) == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "В файле должна быть колонка темы курсовой или ВКР"
+            );
+        }
+        if (findColumn(headerPositions, SUPERVISOR_ID_HEADERS) == null
+                && findColumn(headerPositions, SUPERVISOR_LOGIN_HEADERS) == null
+                && findColumn(headerPositions, SUPERVISOR_FULL_NAME_HEADERS) == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "В файле должна быть колонка ID, логина или ФИО научного руководителя"
+            );
+        }
+        if (findColumn(headerPositions, SUPERVISOR_LOGIN_HEADERS) != null
+                && findColumn(headerPositions, SUPERVISOR_ID_HEADERS) == null
+                && findColumn(headerPositions, SUPERVISOR_FULL_NAME_HEADERS) == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "В файле отсутствует обязательная колонка: " + HEADER_SUPERVISOR_FULL_NAME
+            );
+        }
+    }
+
+    private static Integer findColumn(Map<String, Integer> headerPositions, List<String> headerNames) {
+        for (String headerName : headerNames) {
+            Integer position = headerPositions.get(normalizeHeaderKey(headerName));
+            if (position != null) {
+                return position;
+            }
+        }
+        return null;
+    }
+
+    private static HeaderMapping findHeaderMapping(Sheet sheet, DataFormatter formatter) {
+        int lastCandidateRow = Math.min(sheet.getLastRowNum(), sheet.getFirstRowNum() + 25);
+        return Stream.iterate(sheet.getFirstRowNum(), rowIndex -> rowIndex + 1)
+                .limit(lastCandidateRow - sheet.getFirstRowNum() + 1L)
+                .map(rowIndex -> buildHeaderMapping(sheet.getRow(rowIndex), rowIndex, formatter))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .max(Comparator.comparingInt(HeaderMapping::score))
+                .orElse(null);
+    }
+
+    private static Optional<HeaderMapping> buildHeaderMapping(Row headerRow, int rowIndex, DataFormatter formatter) {
+        if (headerRow == null) {
+            return Optional.empty();
+        }
+
+        Map<String, Integer> headerPositions = new LinkedHashMap<>();
+        headerRow.forEach(cell -> headerPositions.put(
+                normalizeHeaderKey(formatter.formatCellValue(cell)),
+                cell.getColumnIndex()
+        ));
+
+        Integer studentFullNameColumn = findColumn(headerPositions, STUDENT_FULL_NAME_HEADERS);
+        Integer courseWorkTopicColumn = findColumn(headerPositions, COURSE_WORK_TOPIC_HEADERS);
+        Integer thesisTopicColumn = findColumn(headerPositions, THESIS_TOPIC_HEADERS);
+        Integer supervisorFullNameColumn = findColumn(headerPositions, SUPERVISOR_FULL_NAME_HEADERS);
+        Integer studentIdColumn = findColumn(headerPositions, STUDENT_ID_HEADERS);
+        Integer studentLoginColumn = findColumn(headerPositions, STUDENT_LOGIN_HEADERS);
+        Integer supervisorIdColumn = findColumn(headerPositions, SUPERVISOR_ID_HEADERS);
+        Integer supervisorLoginColumn = findColumn(headerPositions, SUPERVISOR_LOGIN_HEADERS);
+
+        HeaderMapping mapping = new HeaderMapping(
+                rowIndex,
+                studentIdColumn,
+                studentLoginColumn,
+                studentFullNameColumn,
+                courseWorkTopicColumn,
+                thesisTopicColumn,
+                supervisorIdColumn,
+                supervisorLoginColumn,
+                supervisorFullNameColumn,
+                studentFullNameColumn != null
+                        && "студент".equals(normalizeHeaderKey(formatter.formatCellValue(
+                        headerRow.getCell(studentFullNameColumn)
+                )))
+                        && (courseWorkTopicColumn == null || studentFullNameColumn + 1 < courseWorkTopicColumn),
+                formatter
+        );
+
+        try {
+            ensureUsableHeaders(headerPositions);
+            return Optional.of(mapping);
+        } catch (ResponseStatusException ignored) {
+            return Optional.empty();
         }
     }
 
@@ -379,18 +540,14 @@ public class StudentTopicsService {
         return semicolonCount > commaCount ? ';' : ',';
     }
 
-    private static String validateRow(ParsedStudentTopicRow row, String studentLogin) {
-        if (!StringUtils.hasText(studentLogin)) {
-            return "Не заполнен логин студента";
+    private static String validateRow(ParsedStudentTopicRow row, String studentLogin, Long studentId) {
+        if (studentId == null && !StringUtils.hasText(studentLogin) && !StringUtils.hasText(row.studentFullName())) {
+            return "Не заполнен ID, логин или ФИО студента";
         }
-        if (!StringUtils.hasText(row.studentFullName())) {
-            return "Не заполнено ФИО студента";
-        }
-        if (!StringUtils.hasText(row.supervisorLogin())) {
-            return "Не заполнен логин научного руководителя";
-        }
-        if (!StringUtils.hasText(row.supervisorFullName())) {
-            return "Не заполнено ФИО научного руководителя";
+        if (!StringUtils.hasText(row.supervisorId())
+                && !StringUtils.hasText(row.supervisorLogin())
+                && !StringUtils.hasText(row.supervisorFullName())) {
+            return "Не заполнен ID, логин или ФИО научного руководителя";
         }
         if (!StringUtils.hasText(row.courseWorkTopic()) && !StringUtils.hasText(row.thesisTopic())) {
             return "Не заполнены ни тема курсовой, ни тема ВКР";
@@ -398,24 +555,87 @@ public class StudentTopicsService {
         return null;
     }
 
-    private Student findStudentByLogin(String studentLogin) {
-        return studentRepository.findByUser_Login(studentLogin).orElseThrow(
-                () -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Студент с логином '" + studentLogin + "' не найден"
-                )
+    private Student findStudent(ParsedStudentTopicRow row, String studentLogin, Long studentId) {
+        if (studentId != null) {
+            return studentRepository.findById(studentId).orElseThrow(
+                    () -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Студент с ID '" + studentId + "' не найден"
+                    )
+            );
+        }
+        if (StringUtils.hasText(studentLogin)) {
+            return studentRepository.findByUser_Login(studentLogin).orElseThrow(
+                    () -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Студент с логином '" + studentLogin + "' не найден"
+                    )
+            );
+        }
+
+        String normalizedFullName = normalizePersonName(row.studentFullName());
+        List<Student> matches = studentRepository.findAll().stream()
+                .filter(student -> normalizePersonName(studentFullName(student))
+                        .equals(normalizedFullName))
+                .toList();
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+        if (matches.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Студент с ФИО '" + normalizeText(row.studentFullName()) + "' не найден"
+            );
+        }
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Найдено несколько студентов с ФИО '" + normalizeText(row.studentFullName())
+                        + "'. Добавьте в файл ID или логин студента"
         );
     }
 
-    private Employee findSupervisorByLogin(String supervisorLogin) {
-        String normalizedLogin = normalizeLogin(supervisorLogin);
-        return employeeRepository.findByUserLogin(normalizedLogin).orElseThrow(
-                () -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Научный руководитель с логином '"
-                                + normalizedLogin
-                                + "' не найден"
-                )
+    private Employee findSupervisor(ParsedStudentTopicRow row) {
+        Long supervisorId = parseLong(row.supervisorId());
+        if (supervisorId != null) {
+            return employeeRepository.findById(supervisorId).orElseThrow(
+                    () -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Научный руководитель с ID '" + supervisorId + "' не найден"
+                    )
+            );
+        }
+
+        String normalizedLogin = normalizeLogin(row.supervisorLogin());
+        if (StringUtils.hasText(normalizedLogin)) {
+            return employeeRepository.findByUserLogin(normalizedLogin).orElseThrow(
+                    () -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Научный руководитель с логином '"
+                                    + normalizedLogin
+                                    + "' не найден"
+                    )
+            );
+        }
+
+        String normalizedFullName = normalizePersonName(row.supervisorFullName());
+        List<Employee> matches = employeeRepository.findAll().stream()
+                .filter(employee -> normalizePersonName(employeeFullName(employee))
+                        .equals(normalizedFullName)
+                        || normalizePersonName(toShortEmployeeName(employee)).equals(normalizedFullName))
+                .toList();
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+        if (matches.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Научный руководитель с ФИО '" + normalizeText(row.supervisorFullName()) + "' не найден"
+            );
+        }
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Найдено несколько научных руководителей с ФИО '" + normalizeText(row.supervisorFullName())
+                        + "'. Добавьте в файл ID или логин научного руководителя"
         );
     }
 
@@ -525,6 +745,10 @@ public class StudentTopicsService {
                 .orElse("");
     }
 
+    private static String normalizeHeaderKey(String value) {
+        return normalizeHeader(value).toLowerCase(Locale.ROOT);
+    }
+
     private static String normalizeLogin(String value) {
         return Optional.ofNullable(value)
                 .map(String::trim)
@@ -544,6 +768,78 @@ public class StudentTopicsService {
         return normalized.isBlank() ? null : normalized;
     }
 
+    private static String normalizePersonName(String value) {
+        return normalizeText(value)
+                .replace(".", " ")
+                .replace(",", " ")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private static Long parseLong(String value) {
+        String normalized = normalizeText(value);
+        if (!StringUtils.hasText(normalized)) {
+            return null;
+        }
+        try {
+            return Long.parseLong(normalized.replaceAll("\\.0$", ""));
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private static String resolveStudentFullName(ParsedStudentTopicRow row, Student student) {
+        if (StringUtils.hasText(row.studentFullName())) {
+            return row.studentFullName();
+        }
+        return studentFullName(student);
+    }
+
+    private static String studentFullName(Student student) {
+        return normalizeText(Stream.of(
+                        student.getUser().getLastName(),
+                        student.getUser().getFirstName(),
+                        student.getPatronymic()
+                )
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(" ")));
+    }
+
+    private static String resolveEmployeeFullName(ParsedStudentTopicRow row, Employee employee) {
+        if (StringUtils.hasText(row.supervisorFullName())) {
+            return row.supervisorFullName();
+        }
+        return employeeFullName(employee);
+    }
+
+    private static String employeeFullName(Employee employee) {
+        return normalizeText(Stream.of(
+                        employee.getUser().getLastName(),
+                        employee.getUser().getFirstName(),
+                        employee.getPatronymic()
+                )
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(" ")));
+    }
+
+    private static String toShortEmployeeName(Employee employee) {
+        String firstNameInitial = firstLetter(employee.getUser().getFirstName());
+        String patronymicInitial = firstLetter(employee.getPatronymic());
+        return normalizeText(Stream.of(
+                        employee.getUser().getLastName(),
+                        firstNameInitial,
+                        patronymicInitial
+                )
+                .filter(StringUtils::hasText)
+                .collect(Collectors.joining(" ")));
+    }
+
+    private static String firstLetter(String value) {
+        String normalized = normalizeText(value);
+        return normalized.isEmpty() ? "" : normalized.substring(0, 1);
+    }
+
     private static String rootCauseMessage(Throwable throwable) {
         Throwable current = throwable;
         while (current.getCause() != null) {
@@ -554,22 +850,67 @@ public class StudentTopicsService {
 
     private record ParsedStudentTopicRow(
             int rowNumber,
+            String studentId,
             String studentLogin,
             String studentFullName,
             String courseWorkTopic,
             String thesisTopic,
+            String supervisorId,
             String supervisorLogin,
             String supervisorFullName
     ) {
         private boolean isBlank() {
             return Stream.of(
+                    studentId,
                     studentLogin,
                     studentFullName,
                     courseWorkTopic,
                     thesisTopic,
+                    supervisorId,
                     supervisorLogin,
                     supervisorFullName
             ).allMatch(value -> value == null || value.isBlank());
+        }
+
+        private boolean hasStudentReference() {
+            return Stream.of(studentId, studentLogin, studentFullName)
+                    .anyMatch(StringUtils::hasText);
+        }
+
+        private boolean hasSupervisorReference() {
+            return Stream.of(supervisorId, supervisorLogin, supervisorFullName)
+                    .anyMatch(StringUtils::hasText);
+        }
+    }
+
+    private record HeaderMapping(
+            int headerRowIndex,
+            Integer studentIdColumn,
+            Integer studentLoginColumn,
+            Integer studentFullNameColumn,
+            Integer courseWorkTopicColumn,
+            Integer thesisTopicColumn,
+            Integer supervisorIdColumn,
+            Integer supervisorLoginColumn,
+            Integer supervisorFullNameColumn,
+            boolean studentNameContinuesInNextColumn,
+            DataFormatter formatter
+    ) {
+        private int score() {
+            int filledColumns = Stream.of(
+                            studentIdColumn,
+                            studentLoginColumn,
+                            studentFullNameColumn,
+                            courseWorkTopicColumn,
+                            thesisTopicColumn,
+                            supervisorIdColumn,
+                            supervisorLoginColumn,
+                            supervisorFullNameColumn
+                    )
+                    .mapToInt(column -> column != null ? 1 : 0)
+                    .sum();
+            int preciseStudentColumn = studentNameContinuesInNextColumn ? 0 : 1;
+            return filledColumns * 10 + preciseStudentColumn;
         }
     }
 }
