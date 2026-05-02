@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -142,9 +144,12 @@ public class EmployeeService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Host", "parser_api:8000");
-        headers.add("Content-Type", "application/json");
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<ParserEmployeeRequest> entity = new HttpEntity<>(request, headers);
+        String body = "{\"employee_id\":" + employee.getId() + "}";
+        headers.setContentLength(body.getBytes(StandardCharsets.UTF_8).length);
+
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<Void> response = restTemplate.postForEntity(
                 properties.services().get("parser").baseUrl() + "/employees/"
