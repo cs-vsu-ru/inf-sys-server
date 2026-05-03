@@ -8,11 +8,14 @@ import org.springframework.stereotype.Repository;
 import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Student findByUser_Id(Long userId);
+
+    Optional<Student> findByUser_Login(String login);
 
     List<Student> findBySupervisorId(Long supervisorId);
 
