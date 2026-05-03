@@ -2,6 +2,7 @@ package vsu.cs.is.infsysserver.custom.page.adapter.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,18 +44,21 @@ public class CustomPageController implements CustomPageApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<PageDTO> createPage(@RequestBody PageDTO page) {
         return customPageService.createPage(page);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PatchMapping
     public ResponseEntity<PageDTO> updatePageByName(@RequestBody PageDTO page) {
         return customPageService.updatePageByName(page);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @DeleteMapping("/{name}")
     public ResponseEntity<PageDTO> deletePageByName(@PathVariable String name) {
         customPageService.deletePageByName(name);

@@ -17,7 +17,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(proxyTargetClass = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtFilter jwtAuthFilter;
@@ -31,15 +31,17 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                                req
-                                        .requestMatchers("/api/students/**", "/api/students").hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.POST, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
+                        req
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/api/authenticate", "/api/refresh-token", "/actuator/health")
+                                .permitAll()
+                                .requestMatchers("/actuator/**")
+                                .hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
                                         .requestMatchers(HttpMethod.PUT, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
                                         .requestMatchers(HttpMethod.DELETE, "/api/tabs", "/api/tabs/**").hasRole("ADMIN")
                                         .anyRequest()
-                                        .permitAll()
-//                                      пример, как закрыть эндпоинт по пермиту
-//                                      .anyRequest().hasAnyAuthority(ADMIN_READ.getPermission())
+                                .permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -51,6 +53,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }

@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.slider.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,7 @@ public class SliderController implements SliderApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<SliderElementResponse> createSliderElement(
             @RequestBody SliderElementCreateRequest sliderElementCreateRequest
@@ -51,6 +53,7 @@ public class SliderController implements SliderApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SliderElementResponse> updateSliderElementById(
             @PathVariable Long id,
@@ -60,6 +63,7 @@ public class SliderController implements SliderApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSliderElementById(@PathVariable Long id) {
         sliderService.deleteSliderElementById(id);

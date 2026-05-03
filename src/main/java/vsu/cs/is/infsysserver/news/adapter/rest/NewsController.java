@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.news.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ public class NewsController implements NewsAPI {
         return ok(newsService.getNewsById(id));
     }
 
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<NewsResponse> createNews(@RequestBody NewsCreateRequest createRequest) {
         return ResponseEntity
@@ -45,12 +47,14 @@ public class NewsController implements NewsAPI {
                 .body(newsService.createNews(createRequest));
     }
 
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<NewsResponse> updateNewsById(@PathVariable Long id,
                                                        @RequestBody NewsUpdateRequest updateRequest) {
         return ok(newsService.updateNewsById(id, updateRequest));
     }
 
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNewsById(@PathVariable Long id) {
         newsService.deleteNewsById(id);

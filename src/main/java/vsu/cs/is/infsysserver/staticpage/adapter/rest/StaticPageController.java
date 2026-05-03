@@ -3,6 +3,7 @@ package vsu.cs.is.infsysserver.staticpage.adapter.rest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ public class StaticPageController implements StaticPageApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<StaticPageResponse> createStaticPage(
             @RequestBody StaticPageCreateRequest staticPageCreateRequest
@@ -52,6 +54,7 @@ public class StaticPageController implements StaticPageApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<StaticPageResponse> updateStaticPageById(
             @PathVariable Long id,
@@ -61,6 +64,7 @@ public class StaticPageController implements StaticPageApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStaticPageById(@PathVariable Long id) {
         staticPageService.deleteStaticPageById(id);
