@@ -11,6 +11,7 @@ public class StudentImportResponse {
 
     private int created;
     private int updated;
+    private int skipped;
     private List<StudentImportError> errors = new ArrayList<>();
 
     public void incrementCreated() {
@@ -19,6 +20,10 @@ public class StudentImportResponse {
 
     public void incrementUpdated() {
         updated++;
+    }
+
+    public void incrementSkipped() {
+        skipped++;
     }
 
     public void addError(int row, String field, String message) {
