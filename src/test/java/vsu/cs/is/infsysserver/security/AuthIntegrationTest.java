@@ -117,14 +117,15 @@ class AuthIntegrationTest {
     }
 
     @Test
-    @DisplayName("Логин с несуществующим пользователем — 401")
-    void authenticate_UserNotFound_Returns401() throws Exception {
+    @DisplayName("Логин с несуществующим пользователем (LDAP пустил) — bindRequired")
+    void authenticate_UserNotFound_LdapSuccess_ReturnsBindRequired() throws Exception {
         var request = new AuthenticationRequest("ghost_user", "anyPassword");
 
         mockMvc.perform(post("/api/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bindRequired").value(true));
     }
 
     @Test
