@@ -16,14 +16,18 @@ import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
 import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentEditRequest;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentImportResponse;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
+import vsu.cs.is.infsysserver.student.topic.adapter.jpa.StudentTopicAssignmentRepository;
+import vsu.cs.is.infsysserver.student.topic.adapter.jpa.entity.StudentTopicAssignment;
 import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,11 +40,41 @@ public class StudentService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentTopicAssignmentRepository studentTopicAssignmentRepository;
 
     public List<StudentResponse> getAllStudents() {
-        return studentRepository.findAll(Sort.by(Sort.Order.asc("isDisabled"), Sort.Order.asc("id"))).stream()
-                .map(StudentResponse::new)
+        List<Student> students = studentRepository.findAll(
+                Sort.by(Sort.Order.asc("isDisabled"), Sort.Order.asc("id"))
+        );
+        if (students.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> ids = students.stream()
+                .map(Student::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, StudentTopicAssignment> assignments = studentTopicAssignmentRepository
+                .findAllByStudent_IdIn(ids)
+                .stream()
+                .collect(Collectors.toMap(
+                        a -> a.getStudent().getId(),
+                        Function.identity()
+                ));
+
+        return students.stream()
+                .map(s -> StudentResponse.fromStudentAndTopics(
+                        s, Optional.ofNullable(assignments.get(s.getId()))
+                ))
                 .toList();
+    }
+
+    public Optional<StudentResponse> getStudentById(Long id) {
+        return studentRepository.findById(id)
+                .map(student -> StudentResponse.fromStudentAndTopics(
+                        student,
+                        studentTopicAssignmentRepository.findByStudent_Id(student.getId())
+                ));
     }
 
     public StudentResponse editStudent(Long id, StudentEditRequest edit) {
@@ -85,7 +119,10 @@ public class StudentService {
         student.setUser(user);
         studentRepository.save(student);
 
-        return new StudentResponse(student);
+        return StudentResponse.fromStudentAndTopics(
+                student,
+                studentTopicAssignmentRepository.findByStudent_Id(student.getId())
+        );
     }
 
     public void disableStudent(Long id) {
@@ -115,7 +152,10 @@ public class StudentService {
 
         Student student = studentRepository.findByUser_Id(user.getId());
 
-        return new StudentResponse(student);
+        return StudentResponse.fromStudentAndTopics(
+                student,
+                studentTopicAssignmentRepository.findByStudent_Id(student.getId())
+        );
     }
 
     public StudentImportResponse importStudents(MultipartFile file) {

@@ -5,6 +5,7 @@ import lombok.Data;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Department;
 import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
+import vsu.cs.is.infsysserver.student.topic.adapter.jpa.entity.StudentTopicAssignment;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.util.Optional;
@@ -45,6 +46,32 @@ public class StudentResponse {
     private String departmentInfo;
 
     private Boolean isActive;
+
+    private String supervisorFullName;
+
+    private Long supervisorEmployeeId;
+
+    private String courseWorkTopic;
+
+    private String thesisTopic;
+
+    public static StudentResponse fromStudentAndTopics(
+            Student student,
+            Optional<StudentTopicAssignment> assignment
+    ) {
+        StudentResponse response = new StudentResponse(student);
+        assignment.ifPresent(a -> {
+            response.setSupervisorFullName(a.getSupervisorFullName());
+            response.setSupervisorEmployeeId(
+                    a.getSupervisorEmployee() != null
+                            ? a.getSupervisorEmployee().getId()
+                            : null
+            );
+            response.setCourseWorkTopic(a.getCourseWorkTopic());
+            response.setThesisTopic(a.getThesisTopic());
+        });
+        return response;
+    }
 
     public StudentResponse(Student student) {
         this.id = student.getId();

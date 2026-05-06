@@ -19,13 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import vsu.cs.is.infsysserver.security.entity.dto.response.StudentAuthenticationResponse;
 import vsu.cs.is.infsysserver.security.service.AuthenticationService;
 import vsu.cs.is.infsysserver.student.adapter.StudentService;
-import vsu.cs.is.infsysserver.student.adapter.jpa.StudentRepository;
-import vsu.cs.is.infsysserver.student.adapter.jpa.entity.Student;
 import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentEditRequest;
 import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentRequest;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentImportResponse;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
-import java.util.Optional;
 
 @RequestMapping("/api")
 @CrossOrigin
@@ -33,7 +30,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StudentController {
 
-    private final StudentRepository studentRepository;
     private final AuthenticationService authenticationService;
     private final StudentService studentService;
 
@@ -72,10 +68,8 @@ public class StudentController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/student/{id}")
     public ResponseEntity<StudentResponse> getById(@PathVariable Long id) {
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-
-        return optionalStudent.map(student ->
-                        ResponseEntity.ok(new StudentResponse(student)))
+        return studentService.getStudentById(id)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
