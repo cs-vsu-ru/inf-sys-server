@@ -20,6 +20,7 @@ import vsu.cs.is.infsysserver.security.entity.dto.response.StudentAuthentication
 import vsu.cs.is.infsysserver.security.service.AuthenticationService;
 import vsu.cs.is.infsysserver.student.adapter.StudentService;
 import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentEditRequest;
+import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentImportUrlRequest;
 import vsu.cs.is.infsysserver.student.adapter.rest.request.StudentRequest;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentImportResponse;
 import vsu.cs.is.infsysserver.student.adapter.rest.response.StudentResponse;
@@ -84,14 +85,23 @@ public class StudentController {
     public ResponseEntity<StudentImportResponse> importStudents(
             @RequestParam("file") MultipartFile file
     ) {
-        StudentImportResponse response = studentService.importStudents(file);
+        return toResponseEntity(studentService.importStudents(file));
+    }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/students/import/google-sheet")
+    public ResponseEntity<StudentImportResponse> importStudentsFromGoogleSheet(
+            @RequestBody StudentImportUrlRequest request
+    ) {
+        return toResponseEntity(studentService.importStudentsFromGoogleSheet(request.url()));
+    }
+
+    private static ResponseEntity<StudentImportResponse> toResponseEntity(StudentImportResponse response) {
         if (response.getCreated() == 0
                 && response.getUpdated() == 0
                 && !response.getErrors().isEmpty()) {
             return ResponseEntity.badRequest().body(response);
         }
-
         return ResponseEntity.ok(response);
     }
 }
