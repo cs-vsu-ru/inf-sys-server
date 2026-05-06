@@ -38,6 +38,13 @@ public class StudentTopicsController {
         return studentTopicsService.importGoogleSheet(request.url());
     }
 
+    /**
+     * @deprecated Используйте поля supervisorFullName, supervisorEmployeeId,
+     * courseWorkTopic, thesisTopic в основном StudentResponse
+     * (GET /api/students, /api/student/{id}, /api/student/account).
+     * Endpoint оставлен для обратной совместимости и будет удалён в следующих итерациях.
+     */
+    @Deprecated
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/students/topics/{studentLogin}")
     public ResponseEntity<StudentTopicsResponse> getTopicsByStudentLogin(@PathVariable String studentLogin) {
@@ -46,6 +53,13 @@ public class StudentTopicsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * @deprecated Используйте поля supervisorFullName, supervisorEmployeeId,
+     * courseWorkTopic, thesisTopic в основном StudentResponse
+     * (GET /api/student/{id}).
+     * Endpoint оставлен для обратной совместимости и будет удалён в следующих итерациях.
+     */
+    @Deprecated
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/students/{studentId}/topics")
     public ResponseEntity<StudentTopicsResponse> getTopicsByStudentId(@PathVariable Long studentId) {
@@ -54,6 +68,13 @@ public class StudentTopicsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * @deprecated Используйте поля supervisorFullName, supervisorEmployeeId,
+     * courseWorkTopic, thesisTopic в основном StudentResponse
+     * (GET /api/student/account).
+     * Endpoint оставлен для обратной совместимости и будет удалён в следующих итерациях.
+     */
+    @Deprecated
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/student/account/topics")
     public ResponseEntity<StudentTopicsResponse> getCurrentStudentTopics() {

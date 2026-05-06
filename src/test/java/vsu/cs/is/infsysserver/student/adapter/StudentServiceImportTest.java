@@ -167,4 +167,45 @@ class StudentServiceImportTest {
         verify(userRepository).save(userCaptor.capture());
         assertEquals("", userCaptor.getValue().getPassword());
     }
+
+    @Test
+    @DisplayName("CSV файл — парсится так же, как xlsx")
+    void importStudents_CsvFile_ParsesSameWayAsXlsx() {
+        String csv = "Имя,Фамилия,Логин,Адрес электронной почты,Группы\n"
+                + "Гагик Арманович,Асатрян,16250362,gagik@gmail.com,2025_1к_ФКН_09.04.02_Оч_0_25\n";
+        var file = new MockMultipartFile(
+                "file", "students.csv", "text/csv", csv.getBytes()
+        );
+        when(userRepository.findByLogin("16250362")).thenReturn(java.util.Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(studentRepository.findByUser_Id(any())).thenReturn(null);
+
+        StudentImportResponse result = studentService.importStudents(file);
+
+        assertEquals(1, result.getCreated());
+        assertEquals(0, result.getUpdated());
+        assertEquals(0, result.getSkipped());
+
+        ArgumentCaptor<Student> studCaptor = ArgumentCaptor.forClass(Student.class);
+        verify(studentRepository).save(studCaptor.capture());
+        Student stud = studCaptor.getValue();
+        assertEquals("Арманович", stud.getPatronymic());
+        assertEquals(2025, stud.getStartYear());
+        assertEquals(1, stud.getCourse());
+    }
+
+    @Test
+    @DisplayName("Не поддерживаемое расширение — ошибка с указанием на .xlsx и .csv")
+    void importStudents_UnsupportedExtension_AddsError() {
+        var file = new MockMultipartFile(
+                "file", "list.txt", "text/plain", "garbage".getBytes()
+        );
+
+        StudentImportResponse result = studentService.importStudents(file);
+
+        assertEquals(0, result.getCreated());
+        assertEquals(0, result.getUpdated());
+        assertEquals(1, result.getErrors().size());
+        verify(userRepository, never()).save(any());
+    }
 }

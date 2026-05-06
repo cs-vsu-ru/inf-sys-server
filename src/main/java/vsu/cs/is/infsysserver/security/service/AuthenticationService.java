@@ -38,6 +38,7 @@ import vsu.cs.is.infsysserver.user.adapter.jpa.UserRepository;
 import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static vsu.cs.is.infsysserver.security.util.Constants.BEARER_PREFIX;
 
@@ -100,7 +101,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(userDetails);
         saveUserToken(savedUser, jwtToken);
 
-        StudentResponse studentResponse = new StudentResponse(student);
+        StudentResponse studentResponse = StudentResponse.fromStudentAndTopics(student, Optional.empty());
 
         return StudentAuthenticationResponse.builder()
                 .accessToken(jwtToken)

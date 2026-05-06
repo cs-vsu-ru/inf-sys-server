@@ -109,6 +109,7 @@ class SecurityConfigTest {
         given(uploadService.uploadFile(any())).willReturn("/api/files/test.png");
         given(studentService.getCurrentStudent()).willReturn(studentResponse());
         given(studentService.importStudents(any())).willReturn(new StudentImportResponse());
+        given(studentService.getStudentById(anyLong())).willReturn(Optional.of(studentResponse()));
         given(studentRepository.findById(anyLong())).willReturn(Optional.of(studentEntity()));
     }
 
