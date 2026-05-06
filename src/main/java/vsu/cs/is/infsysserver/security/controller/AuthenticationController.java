@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
+import vsu.cs.is.infsysserver.security.entity.dto.request.StudentBindRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
+import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
 import vsu.cs.is.infsysserver.security.service.AuthenticationService;
 
 import java.io.IOException;
@@ -29,6 +31,11 @@ public class AuthenticationController {
     @PostMapping("/verify-2fa")
     public ResponseEntity<?> verifyTwoFactor(@RequestBody VerifyTwoFactorRequest request) {
         return service.verifyTwoFactor(request);
+    }
+
+    @PostMapping("/auth/student/bind")
+    public AuthenticationResponse bindStudent(@RequestBody StudentBindRequest request) {
+        return service.bindStudent(request);
     }
 
     @PostMapping("/refresh-token")

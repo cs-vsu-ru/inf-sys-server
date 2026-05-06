@@ -18,6 +18,7 @@ import vsu.cs.is.infsysserver.exception.UnauthorizedException;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
+import vsu.cs.is.infsysserver.security.entity.dto.response.BindRequiredResponse;
 import vsu.cs.is.infsysserver.security.entity.dto.response.TwoFactorRequiredResponse;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
 import vsu.cs.is.infsysserver.security.entity.token.Token;
@@ -64,24 +65,39 @@ class AuthenticationServiceTest {
     // ─────────────────────────── Старый флоу (без 2FA) ───────────────────────────
 
     @Test
-    @DisplayName("Аутентификация — пользователь не найден — 401")
-    void authenticate_UserNotFound_Returns401() {
+    @DisplayName("Аутентификация — user не найден, LDAP успешен — возвращает {bindRequired:true}")
+    void authenticate_UserNotFound_LdapSuccess_ReturnsBindRequired() {
         // given
-        var request = new AuthenticationRequest("unknown", "pass");
-        doReturn(Optional.empty()).when(userRepository).findByLogin("unknown");
-        // LDAP не вызывается — short-circuit при пустом Optional
+        var request = new AuthenticationRequest("ivanov_i_i", "ad_pass");
+        doReturn(true).when(ldapAuthentication).isConnectionSuccess(request);
+        doReturn(Optional.empty()).when(userRepository).findByLogin("ivanov_i_i");
+
+        // when
+        ResponseEntity<?> response = authenticationService.authenticate(request);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertInstanceOf(BindRequiredResponse.class, response.getBody());
+        assertTrue(((BindRequiredResponse) response.getBody()).isBindRequired());
+    }
+
+    @Test
+    @DisplayName("Аутентификация — user не найден, LDAP отклонил — 401")
+    void authenticate_UserNotFound_LdapFails_Returns401() {
+        // given
+        var request = new AuthenticationRequest("ivanov_i_i", "wrong_pass");
+        doReturn(false).when(ldapAuthentication).isConnectionSuccess(request);
 
         // then
         assertThrows(UnauthorizedException.class, () -> authenticationService.authenticate(request));
     }
 
     @Test
-    @DisplayName("Аутентификация — LDAP вернул ошибку — 401")
+    @DisplayName("Аутентификация — LDAP вернул ошибку (user найден) — 401")
     void authenticate_LdapFails_Returns401() {
         // given
         var user = buildUser(false, "student@cs.vsu.ru");
         var request = new AuthenticationRequest(user.getLogin(), "pass");
-        doReturn(Optional.of(user)).when(userRepository).findByLogin(user.getLogin());
         doReturn(false).when(ldapAuthentication).isConnectionSuccess(request);
 
         // then

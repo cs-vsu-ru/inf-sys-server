@@ -21,10 +21,15 @@ import vsu.cs.is.infsysserver.user.adapter.jpa.entity.User;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
 public class StudentService {
+
+    private static final Pattern START_YEAR_PATTERN = Pattern.compile("^(\\d{4})_");
+    private static final Pattern COURSE_PATTERN = Pattern.compile("_(\\d+)к_");
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
@@ -155,12 +160,38 @@ public class StudentService {
                 try {
                     Map<String, String> data = readRow(row, headerMap);
 
-                    String firstName = required(data, "firstName", "Имя");
+                    String firstNameFull = required(data, "firstName", "Имя");
                     String lastName = required(data, "lastName", "Фамилия");
                     String login = required(data, "login", "Логин");
                     String email = required(data, "email", "Адрес электронной почты");
 
                     String group = trimToNull(data.get("group"));
+
+                    if (group == null) {
+                        result.incrementSkipped();
+                        continue;
+                    }
+
+                    String[] nameParts = firstNameFull.split("\\s+", 2);
+                    String firstName = nameParts[0];
+                    String patronymic = nameParts.length > 1 ? nameParts[1] : null;
+
+                    Integer startYear = null;
+                    Integer course = null;
+                    Matcher startYearMatcher = START_YEAR_PATTERN.matcher(group);
+                    if (startYearMatcher.find()) {
+                        try {
+                            startYear = Integer.parseInt(startYearMatcher.group(1));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    Matcher courseMatcher = COURSE_PATTERN.matcher(group);
+                    if (courseMatcher.find()) {
+                        try {
+                            course = Integer.parseInt(courseMatcher.group(1));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
 
                     User user = userRepository.findByLogin(login).orElse(null);
                     boolean created = false;
@@ -169,6 +200,7 @@ public class StudentService {
                         user = new User();
                         user.setLogin(login);
                         user.setRole(Role.USER);
+                        user.setPassword("");
                         created = true;
                     }
 
@@ -186,7 +218,10 @@ public class StudentService {
                         created = true;
                     }
 
+                    student.setPatronymic(patronymic);
                     student.setGroup(group);
+                    student.setStartYear(startYear);
+                    student.setCourse(course);
                     studentRepository.save(student);
 
                     if (created) {

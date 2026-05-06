@@ -12,13 +12,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vsu.cs.is.infsysserver.exception.ConflictException;
+import vsu.cs.is.infsysserver.exception.ForbiddenException;
 import vsu.cs.is.infsysserver.exception.GeneralException;
 import vsu.cs.is.infsysserver.exception.UnauthorizedException;
 import vsu.cs.is.infsysserver.exception.NotFoundException;
 import vsu.cs.is.infsysserver.security.entity.dto.request.AuthenticationRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.RegisterRequest;
+import vsu.cs.is.infsysserver.security.entity.dto.request.StudentBindRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.request.VerifyTwoFactorRequest;
 import vsu.cs.is.infsysserver.security.entity.dto.response.AuthenticationResponse;
+import vsu.cs.is.infsysserver.security.entity.dto.response.BindRequiredResponse;
 import vsu.cs.is.infsysserver.security.entity.dto.response.StudentAuthenticationResponse;
 import vsu.cs.is.infsysserver.security.entity.dto.response.TwoFactorRequiredResponse;
 import vsu.cs.is.infsysserver.security.entity.temp.Role;
@@ -105,10 +109,16 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> authenticate(AuthenticationRequest request) {
+        if (!ldapAuthentication.isConnectionSuccess(request)) {
+            throw new UnauthorizedException("Неверный логин или пароль");
+        }
+
         var optionalUser = repository.findByLogin(request.getUsername());
 
-        if (optionalUser.isEmpty() || !ldapAuthentication.isConnectionSuccess(request)) {
-            throw new UnauthorizedException("Неверный логин или пароль");
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.ok(
+                    BindRequiredResponse.builder().bindRequired(true).build()
+            );
         }
 
         var user = optionalUser.get();
@@ -153,6 +163,37 @@ public class AuthenticationService {
 //                .refreshToken(refreshToken)
                 .mainRole(user.getRole().name())
                 .build());
+    }
+
+    @Transactional
+    public AuthenticationResponse bindStudent(StudentBindRequest request) {
+        AuthenticationRequest ldapRequest = new AuthenticationRequest(
+                request.getAdLogin(), request.getPassword()
+        );
+        if (!ldapAuthentication.isConnectionSuccess(ldapRequest)) {
+            throw new UnauthorizedException("Неверный логин или пароль");
+        }
+
+        var pendingUser = repository.findByLogin(request.getMoodleLogin())
+                .orElseThrow(() -> new ForbiddenException("Вы не являетесь студентом кафедры"));
+
+        var conflicting = repository.findByLogin(request.getAdLogin());
+        if (conflicting.isPresent() && !conflicting.get().getId().equals(pendingUser.getId())) {
+            throw new ConflictException("Этот AD-логин уже используется");
+        }
+
+        pendingUser.setLogin(request.getAdLogin());
+        pendingUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        var saved = repository.save(pendingUser);
+
+        var userDetails = UserMapper.mapUserToUserDetails(saved);
+        var jwtToken = jwtService.generateToken(userDetails);
+        saveUserToken(saved, jwtToken);
+
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .mainRole(saved.getRole().name())
+                .build();
     }
 
     public ResponseEntity<?> verifyTwoFactor(VerifyTwoFactorRequest request) {
