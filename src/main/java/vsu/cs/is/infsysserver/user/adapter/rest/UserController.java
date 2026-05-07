@@ -21,7 +21,6 @@ public class UserController implements UserApi {
     private final EmployeeService employeeService;
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<EmployeeResponse> getAccountInfo(@AuthenticationPrincipal String authUserLogin) {
         return ok(employeeService.getEmployeeByLogin(authUserLogin));

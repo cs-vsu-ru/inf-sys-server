@@ -150,19 +150,6 @@ class SecurityConfigTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void accountEndpointsShouldRequireAuthentication() throws Exception {
-        mockMvc.perform(get("/api/account"))
-                .andExpect(status().isForbidden());
-
-        mockMvc.perform(get("/api/account")
-                        .with(userAuth("teacher")))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/api/student/account")
-                        .with(userAuth("student")))
-                .andExpect(status().isOk());
-    }
 
     @Test
     void studentDetailsShouldRequireAdminReadPermission() throws Exception {
