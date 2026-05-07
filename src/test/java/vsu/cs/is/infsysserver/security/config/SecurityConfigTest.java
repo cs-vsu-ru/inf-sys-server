@@ -163,6 +163,19 @@ class SecurityConfigTest {
     }
 
     @Test
+    void studentAccountShouldBePublicWithoutToken() throws Exception {
+        mockMvc.perform(get("/api/student/account"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void studentAccountShouldIgnoreBlankBearerToken() throws Exception {
+        mockMvc.perform(get("/api/student/account")
+                        .header("Authorization", "Bearer "))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void uploadShouldRequireModeratorOrAdminPermission() throws Exception {
         mockMvc.perform(multipart("/api/upload-file")
                         .file("file", "hello".getBytes()))

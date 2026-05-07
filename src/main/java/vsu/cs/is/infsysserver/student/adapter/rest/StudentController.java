@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,10 +76,12 @@ public class StudentController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/student/account")
-    public StudentResponse getCurrentStudent() {
-        return studentService.getCurrentStudent();
+    public ResponseEntity<StudentResponse> getCurrentStudent(Authentication authentication) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.ok(studentService.getCurrentStudent());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
