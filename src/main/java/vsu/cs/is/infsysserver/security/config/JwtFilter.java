@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vsu.cs.is.infsysserver.security.entity.token.TokenRepository;
 import vsu.cs.is.infsysserver.security.service.JwtService;
@@ -40,6 +41,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
         String jwt = authHeader.substring(BEARER_PREFIX.length());
+        if (!StringUtils.hasText(jwt)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String userLogin = jwtService.extractUsername(jwt);
         if (userLogin != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userLogin);
