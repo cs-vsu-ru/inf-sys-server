@@ -271,6 +271,16 @@ public class StudentService {
                 User user = userRepository.findByLogin(login).orElse(null);
                 boolean created = false;
 
+                Optional<User> userWithSameEmail = userRepository.findByEmail(email);
+                if (userWithSameEmail.isPresent()
+                        && (user == null || !userWithSameEmail.get().getId().equals(user.getId()))) {
+                    String otherLogin = userWithSameEmail.get().getLogin();
+                    throw new IllegalArgumentException(
+                            "Email '" + email + "' уже используется другим пользователем (логин: "
+                                    + otherLogin + ")"
+                    );
+                }
+
                 if (user == null) {
                     user = new User();
                     user.setLogin(login);
