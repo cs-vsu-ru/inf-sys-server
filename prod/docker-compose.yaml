@@ -43,8 +43,8 @@ services:
       - JWT_SECRET_KEY
       - PARSER_URL
       - BASE_FILES_FOLDER=/api/files/
-      - MAIL_HOST=${SMTP_SERVER:smtp.gmail.com}
-      - MAIL_PORT=${SMTP_PORT:587}
+      - MAIL_HOST=${SMTP_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${SMTP_PORT:-587}
       - MAIL_USERNAME=${EMAIL_LOGIN}
       - MAIL_PASSWORD=${EMAIL_PASSWORD}
     depends_on:
