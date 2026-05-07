@@ -208,4 +208,55 @@ class StudentServiceImportTest {
         assertEquals(1, result.getErrors().size());
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Email уже занят другим пользователем — понятная ошибка, save не вызывается")
+    void importStudents_EmailAlreadyTaken_AddsHumanReadableError() throws Exception {
+        var file = xlsx(new Object[][]{
+                HEADER,
+                {"Иван", "Иванов", "12345", "uli4n4.4@yandex.ru", "2024_2к_ФКН_09.03.02_Оч_0_24"},
+        });
+        User otherUser = User.builder()
+                .id(99L)
+                .login("ulianova_uu")
+                .email("uli4n4.4@yandex.ru")
+                .build();
+        when(userRepository.findByLogin("12345")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("uli4n4.4@yandex.ru")).thenReturn(Optional.of(otherUser));
+
+        StudentImportResponse result = studentService.importStudents(file);
+
+        assertEquals(0, result.getCreated());
+        assertEquals(0, result.getUpdated());
+        assertEquals(1, result.getErrors().size());
+        assertTrue(result.getErrors().get(0).getMessage().contains("Email"));
+        assertTrue(result.getErrors().get(0).getMessage().contains("uli4n4.4@yandex.ru"));
+        assertTrue(result.getErrors().get(0).getMessage().contains("ulianova_uu"));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Email тот же у уже-найденного по login — импорт проходит без ошибки")
+    void importStudents_SameEmailSameUser_NoError() throws Exception {
+        var file = xlsx(new Object[][]{
+                HEADER,
+                {"Иван", "Иванов", "12345", "iv@cs.vsu.ru", "2024_2к_ФКН_09.03.02_Оч_0_24"},
+        });
+        Student existingStudent = Student.builder().id(7L).build();
+        User existing = User.builder()
+                .id(42L)
+                .login("12345")
+                .email("iv@cs.vsu.ru")
+                .build();
+        when(userRepository.findByLogin("12345")).thenReturn(Optional.of(existing));
+        when(userRepository.findByEmail("iv@cs.vsu.ru")).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(studentRepository.findByUser_Id(42L)).thenReturn(existingStudent);
+
+        StudentImportResponse result = studentService.importStudents(file);
+
+        assertEquals(1, result.getUpdated());
+        assertEquals(0, result.getCreated());
+        assertEquals(0, result.getErrors().size());
+    }
 }
