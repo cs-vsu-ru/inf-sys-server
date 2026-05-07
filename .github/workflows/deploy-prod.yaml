@@ -8,6 +8,13 @@ jobs:
     runs-on: prod
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose to prod dir
+        shell: bash
+        run: cp prod/docker-compose.yaml ~/prod/docker-compose.yaml
+
       - name: Login to GitHub Container Registry
         shell: bash
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
