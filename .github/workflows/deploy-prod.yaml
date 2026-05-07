@@ -21,6 +21,9 @@ jobs:
 
       - name: Redeploy containers
         shell: bash
+        env:
+          EMAIL_LOGIN: ${{ secrets.EMAIL_LOGIN }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
           set -e
           cd ~/prod
