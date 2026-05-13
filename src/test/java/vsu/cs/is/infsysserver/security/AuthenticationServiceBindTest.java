@@ -83,12 +83,22 @@ class AuthenticationServiceBindTest {
     }
 
     @Test
-    @DisplayName("bind — успех: login переписывается на AD, пароль кэшируется, выдан JWT")
+    @DisplayName("bind — успех: ФИО из LDAP совпадает, login переписывается на AD, выдан JWT")
     void bind_Success_ReturnsJwt() {
-        var pendingUser = User.builder().id(1L).login("16250362").role(Role.USER).password("").build();
+        var pendingUser = User.builder()
+                .id(1L)
+                .login("16250362")
+                .firstName("Иван")
+                .lastName("Иванов")
+                .role(Role.USER)
+                .password("")
+                .build();
         var req = new StudentBindRequest("ivanov_i_i", "ad_pass", "16250362");
 
         doReturn(true).when(ldapAuthentication).isConnectionSuccess(any(AuthenticationRequest.class));
+        doReturn(Optional.of(new vsu.cs.is.infsysserver.security.service.LdapUserInfo(
+                "Иванов", "Иван", "ivanov@cs.vsu.ru"
+        ))).when(ldapAuthentication).fetchUserDetails(any(AuthenticationRequest.class));
         doReturn(Optional.of(pendingUser)).when(userRepository).findByLogin("16250362");
         doReturn(Optional.empty()).when(userRepository).findByLogin("ivanov_i_i");
         doReturn("encoded").when(passwordEncoder).encode("ad_pass");
@@ -102,5 +112,51 @@ class AuthenticationServiceBindTest {
         assertEquals("ivanov_i_i", pendingUser.getLogin());
         assertEquals("encoded", pendingUser.getPassword());
         verify(tokenRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("bind — ФИО из LDAP не совпадает с найденным студентом — 403, login не переписан")
+    void bind_LdapNameMismatch_Throws403() {
+        var petrov = User.builder()
+                .id(2L)
+                .login("16250400")
+                .firstName("Пётр")
+                .lastName("Петров")
+                .role(Role.USER)
+                .build();
+        var req = new StudentBindRequest("ivanov_i_i", "ad_pass", "16250400");
+
+        doReturn(true).when(ldapAuthentication).isConnectionSuccess(any(AuthenticationRequest.class));
+        doReturn(Optional.of(new vsu.cs.is.infsysserver.security.service.LdapUserInfo(
+                "Иванов", "Иван", "ivanov@cs.vsu.ru"
+        ))).when(ldapAuthentication).fetchUserDetails(any(AuthenticationRequest.class));
+        doReturn(Optional.of(petrov)).when(userRepository).findByLogin("16250400");
+        doReturn(Optional.empty()).when(userRepository).findByLogin("ivanov_i_i");
+
+        assertThrows(ForbiddenException.class, () -> authenticationService.bindStudent(req));
+        assertEquals("16250400", petrov.getLogin()); // login не должен быть перезаписан
+        verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("bind — LDAP не отдал ФИО — 403, login не переписан")
+    void bind_LdapNoDetails_Throws403() {
+        var pendingUser = User.builder()
+                .id(1L)
+                .login("16250362")
+                .firstName("Иван")
+                .lastName("Иванов")
+                .role(Role.USER)
+                .build();
+        var req = new StudentBindRequest("ivanov_i_i", "ad_pass", "16250362");
+
+        doReturn(true).when(ldapAuthentication).isConnectionSuccess(any(AuthenticationRequest.class));
+        doReturn(Optional.empty()).when(ldapAuthentication).fetchUserDetails(any(AuthenticationRequest.class));
+        doReturn(Optional.of(pendingUser)).when(userRepository).findByLogin("16250362");
+        doReturn(Optional.empty()).when(userRepository).findByLogin("ivanov_i_i");
+
+        assertThrows(ForbiddenException.class, () -> authenticationService.bindStudent(req));
+        assertEquals("16250362", pendingUser.getLogin());
+        verify(userRepository, org.mockito.Mockito.never()).save(any(User.class));
     }
 }

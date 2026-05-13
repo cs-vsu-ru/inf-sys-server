@@ -183,6 +183,16 @@ public class AuthenticationService {
             throw new ConflictException("Этот AD-логин уже используется");
         }
 
+        var ldapUserInfo = ldapAuthentication.fetchUserDetails(ldapRequest)
+                .orElseThrow(() -> new ForbiddenException(
+                        "Не удалось верифицировать ваши данные через AD. Обратитесь к администратору"
+                ));
+        if (!matchesLdapIdentity(pendingUser, ldapUserInfo)) {
+            throw new ForbiddenException(
+                    "Введённый логин Moodle не соответствует вашему аккаунту AD"
+            );
+        }
+
         pendingUser.setLogin(request.getAdLogin());
         pendingUser.setPassword(passwordEncoder.encode(request.getPassword()));
         var saved = repository.save(pendingUser);
@@ -260,5 +270,25 @@ public class AuthenticationService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    private static boolean matchesLdapIdentity(User pendingUser, LdapUserInfo ldapInfo) {
+        String ldapSurname = normalize(ldapInfo.surname());
+        String ldapGivenName = normalize(ldapInfo.givenName());
+        String dbLastName = normalize(pendingUser.getLastName());
+        String dbFirstName = normalize(pendingUser.getFirstName());
+
+        if (ldapSurname.isEmpty() || ldapGivenName.isEmpty()
+                || dbLastName.isEmpty() || dbFirstName.isEmpty()) {
+            return false;
+        }
+        if (!ldapSurname.equals(dbLastName)) {
+            return false;
+        }
+        return ldapGivenName.startsWith(dbFirstName);
+    }
+
+    private static String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }
