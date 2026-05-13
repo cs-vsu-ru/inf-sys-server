@@ -106,7 +106,28 @@ class StudentServiceImportTest {
         assertEquals("Арманович", stud.getPatronymic());
         assertEquals(2025, stud.getStartYear());
         assertEquals(1, stud.getCourse());
-        assertEquals("2025_1к_ФКН_09.04.02_Оч_0_25", stud.getGroup());
+        assertEquals("0", stud.getGroup());
+    }
+
+    @Test
+    @DisplayName("Бакалаврская группа '2025_4к_ФКН_09.03.02_Оч_3_22' — group=3, start_year=2022, course=4")
+    void importStudents_BachelorGroup_ParsesNumberAndAdmissionYear() throws Exception {
+        var file = xlsx(new Object[][]{
+                HEADER,
+                {"Иван", "Иванов", "12345", "iv@cs.vsu.ru", "2025_4к_ФКН_09.03.02_Оч_3_22"},
+        });
+        when(userRepository.findByLogin("12345")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(studentRepository.findByUser_Id(any())).thenReturn(null);
+
+        studentService.importStudents(file);
+
+        ArgumentCaptor<Student> studCaptor = ArgumentCaptor.forClass(Student.class);
+        verify(studentRepository).save(studCaptor.capture());
+        Student stud = studCaptor.getValue();
+        assertEquals("3", stud.getGroup());
+        assertEquals(2022, stud.getStartYear());
+        assertEquals(4, stud.getCourse());
     }
 
     @Test
