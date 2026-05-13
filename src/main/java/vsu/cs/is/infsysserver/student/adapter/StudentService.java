@@ -46,7 +46,9 @@ import java.util.stream.Collectors;
 public class StudentService {
 
     private static final Pattern START_YEAR_PATTERN = Pattern.compile("^(\\d{4})_");
+    private static final Pattern ADMISSION_YEAR_PATTERN = Pattern.compile("_(\\d{2})$");
     private static final Pattern COURSE_PATTERN = Pattern.compile("_(\\d+)к_");
+    private static final Pattern GROUP_NUMBER_PATTERN = Pattern.compile("_(\\d+)_\\d{2}$");
     private static final String GOOGLE_SHEETS_HOST = "docs.google.com";
     private static final List<Charset> CSV_CHARSETS = List.of(
             StandardCharsets.UTF_8,
@@ -251,15 +253,31 @@ public class StudentService {
                 String firstName = nameParts[0];
                 String patronymic = nameParts.length > 1 ? nameParts[1] : null;
 
+                String groupNumber = null;
+                Matcher groupNumberMatcher = GROUP_NUMBER_PATTERN.matcher(group);
+                if (groupNumberMatcher.find()) {
+                    groupNumber = groupNumberMatcher.group(1);
+                }
+
                 Integer startYear = null;
-                Integer course = null;
-                Matcher startYearMatcher = START_YEAR_PATTERN.matcher(group);
-                if (startYearMatcher.find()) {
+                Matcher admissionYearMatcher = ADMISSION_YEAR_PATTERN.matcher(group);
+                if (admissionYearMatcher.find()) {
                     try {
-                        startYear = Integer.parseInt(startYearMatcher.group(1));
+                        startYear = 2000 + Integer.parseInt(admissionYearMatcher.group(1));
                     } catch (NumberFormatException ignored) {
                     }
                 }
+                if (startYear == null) {
+                    Matcher startYearMatcher = START_YEAR_PATTERN.matcher(group);
+                    if (startYearMatcher.find()) {
+                        try {
+                            startYear = Integer.parseInt(startYearMatcher.group(1));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
+
+                Integer course = null;
                 Matcher courseMatcher = COURSE_PATTERN.matcher(group);
                 if (courseMatcher.find()) {
                     try {
@@ -302,7 +320,7 @@ public class StudentService {
                 }
 
                 student.setPatronymic(patronymic);
-                student.setGroup(group);
+                student.setGroup(groupNumber != null ? groupNumber : group);
                 student.setStartYear(startYear);
                 student.setCourse(course);
                 studentRepository.save(student);
