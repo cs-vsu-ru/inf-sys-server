@@ -11,6 +11,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: ls ~/prod (before copy)
+        shell: bash
+        run: |
+          echo "===== ~/prod ====="
+          ls -la ~/prod || echo "(no ~/prod directory)"
+          echo ""
+          echo "===== ~/prod/nginx ====="
+          ls -la ~/prod/nginx || echo "(no ~/prod/nginx directory)"
+
       - name: Copy docker-compose to prod dir
         shell: bash
         run: cp prod/docker-compose.yaml ~/prod/docker-compose.yaml
