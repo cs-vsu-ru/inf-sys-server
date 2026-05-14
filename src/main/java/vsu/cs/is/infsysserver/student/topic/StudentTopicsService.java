@@ -56,6 +56,7 @@ public class StudentTopicsService {
     private static final String HEADER_STUDENT_LOGIN = "Логин студента";
     private static final String HEADER_STUDENT_FULL_NAME = "ФИО студента";
     private static final String HEADER_STUDENT_ID = "ID студента";
+    private static final String HEADER_STUDENT_EMAIL = "email";
     private static final String HEADER_COURSE_WORK_TOPIC = "Тема курсовой";
     private static final String HEADER_THESIS_TOPIC = "Тема ВКР";
     private static final String HEADER_SUPERVISOR_LOGIN = "Логин научного руководителя";
@@ -78,6 +79,13 @@ public class StudentTopicsService {
             "фио студента",
             "студент",
             "фио обучающегося"
+    );
+    private static final List<String> STUDENT_EMAIL_HEADERS = List.of(
+            HEADER_STUDENT_EMAIL,
+            "e-mail",
+            "почта",
+            "электронная почта",
+            "почта студента"
     );
     private static final List<String> COURSE_WORK_TOPIC_HEADERS = List.of(
             HEADER_COURSE_WORK_TOPIC,
@@ -324,13 +332,14 @@ public class StudentTopicsService {
                         csvValue(record, headerPositions, STUDENT_ID_HEADERS),
                         csvValue(record, headerPositions, STUDENT_LOGIN_HEADERS),
                         csvValue(record, headerPositions, STUDENT_FULL_NAME_HEADERS),
+                        csvValue(record, headerPositions, STUDENT_EMAIL_HEADERS),
                         csvValue(record, headerPositions, COURSE_WORK_TOPIC_HEADERS),
                         csvValue(record, headerPositions, THESIS_TOPIC_HEADERS),
                         csvValue(record, headerPositions, SUPERVISOR_ID_HEADERS),
                         csvValue(record, headerPositions, SUPERVISOR_LOGIN_HEADERS),
                         csvValue(record, headerPositions, SUPERVISOR_FULL_NAME_HEADERS)
                 );
-                if (!row.isBlank()) {
+                if (!row.isBlank() && !looksLikeHeaderRow(row)) {
                     rows.add(row);
                 }
             }
@@ -367,13 +376,14 @@ public class StudentTopicsService {
                         xlsxValue(row, headerMapping.studentIdColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.studentLoginColumn(), headerMapping.formatter()),
                         xlsxStudentFullName(row, headerMapping),
+                        xlsxValue(row, headerMapping.studentEmailColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.courseWorkTopicColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.thesisTopicColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.supervisorIdColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.supervisorLoginColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.supervisorFullNameColumn(), headerMapping.formatter())
                 );
-                if (!parsedRow.isBlank()) {
+                if (!parsedRow.isBlank() && !looksLikeHeaderRow(parsedRow)) {
                     rows.add(parsedRow);
                 }
             }
@@ -472,6 +482,42 @@ public class StudentTopicsService {
         return null;
     }
 
+    private static boolean looksLikeHeaderRow(ParsedStudentTopicRow row) {
+        int presentFields = 0;
+        int headerLikeFields = 0;
+        if (StringUtils.hasText(row.studentFullName())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.studentFullName(), STUDENT_FULL_NAME_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.studentEmail())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.studentEmail(), STUDENT_EMAIL_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.courseWorkTopic())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.courseWorkTopic(), COURSE_WORK_TOPIC_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.thesisTopic())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.thesisTopic(), THESIS_TOPIC_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.supervisorFullName())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.supervisorFullName(), SUPERVISOR_FULL_NAME_HEADERS)) headerLikeFields++;
+        }
+        return presentFields >= 2 && presentFields == headerLikeFields;
+    }
+
+    private static boolean valueMatchesAnyHeader(String value, List<String> headerNames) {
+        String normalized = normalizeHeaderKey(value);
+        if (normalized.isEmpty()) {
+            return false;
+        }
+        return headerNames.stream()
+                .map(StudentTopicsService::normalizeHeaderKey)
+                .anyMatch(normalized::equals);
+    }
+
     private static HeaderMapping findHeaderMapping(Sheet sheet, DataFormatter formatter) {
         int lastCandidateRow = Math.min(sheet.getLastRowNum(), sheet.getFirstRowNum() + 25);
         return Stream.iterate(sheet.getFirstRowNum(), rowIndex -> rowIndex + 1)
@@ -495,6 +541,7 @@ public class StudentTopicsService {
         ));
 
         Integer studentFullNameColumn = findColumn(headerPositions, STUDENT_FULL_NAME_HEADERS);
+        Integer studentEmailColumn = findColumn(headerPositions, STUDENT_EMAIL_HEADERS);
         Integer courseWorkTopicColumn = findColumn(headerPositions, COURSE_WORK_TOPIC_HEADERS);
         Integer thesisTopicColumn = findColumn(headerPositions, THESIS_TOPIC_HEADERS);
         Integer supervisorFullNameColumn = findColumn(headerPositions, SUPERVISOR_FULL_NAME_HEADERS);
@@ -508,6 +555,7 @@ public class StudentTopicsService {
                 studentIdColumn,
                 studentLoginColumn,
                 studentFullNameColumn,
+                studentEmailColumn,
                 courseWorkTopicColumn,
                 thesisTopicColumn,
                 supervisorIdColumn,
@@ -541,8 +589,11 @@ public class StudentTopicsService {
     }
 
     private static String validateRow(ParsedStudentTopicRow row, String studentLogin, Long studentId) {
-        if (studentId == null && !StringUtils.hasText(studentLogin) && !StringUtils.hasText(row.studentFullName())) {
-            return "Не заполнен ID, логин или ФИО студента";
+        if (studentId == null
+                && !StringUtils.hasText(studentLogin)
+                && !StringUtils.hasText(row.studentFullName())
+                && !StringUtils.hasText(row.studentEmail())) {
+            return "Не заполнен ID, логин, ФИО или email студента";
         }
         if (!StringUtils.hasText(row.supervisorId())
                 && !StringUtils.hasText(row.supervisorLogin())
@@ -574,23 +625,51 @@ public class StudentTopicsService {
         }
 
         String normalizedFullName = normalizePersonName(row.studentFullName());
-        List<Student> matches = studentRepository.findAll().stream()
-                .filter(student -> normalizePersonName(studentFullName(student))
-                        .equals(normalizedFullName))
-                .toList();
-        if (matches.size() == 1) {
-            return matches.get(0);
+        String normalizedEmail = normalizeLogin(row.studentEmail());
+        boolean hasFullName = StringUtils.hasText(normalizedFullName);
+
+        List<Student> nameMatches = hasFullName
+                ? studentRepository.findAll().stream()
+                        .filter(student -> normalizePersonName(studentFullName(student))
+                                .equals(normalizedFullName))
+                        .toList()
+                : List.of();
+
+        if (nameMatches.size() == 1) {
+            return nameMatches.get(0);
         }
-        if (matches.isEmpty()) {
+        if (nameMatches.size() > 1) {
+            if (StringUtils.hasText(normalizedEmail)) {
+                List<Student> emailNarrowed = nameMatches.stream()
+                        .filter(student -> normalizedEmail
+                                .equalsIgnoreCase(student.getUser().getEmail()))
+                        .toList();
+                if (emailNarrowed.size() == 1) {
+                    return emailNarrowed.get(0);
+                }
+            }
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Студент с ФИО '" + normalizeText(row.studentFullName()) + "' не найден"
+                    "Найдено несколько студентов с ФИО '" + normalizeText(row.studentFullName())
+                            + "'. Добавьте в файл ID, логин или email студента"
+            );
+        }
+
+        if (StringUtils.hasText(normalizedEmail)) {
+            return studentRepository.findByUser_EmailIgnoreCase(normalizedEmail).orElseThrow(
+                    () -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            hasFullName
+                                    ? "Студент с ФИО '" + normalizeText(row.studentFullName())
+                                            + "' не найден (email '" + normalizedEmail
+                                            + "' также не найден)"
+                                    : "Студент с email '" + normalizedEmail + "' не найден"
+                    )
             );
         }
         throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Найдено несколько студентов с ФИО '" + normalizeText(row.studentFullName())
-                        + "'. Добавьте в файл ID или логин студента"
+                "Студент с ФИО '" + normalizeText(row.studentFullName()) + "' не найден"
         );
     }
 
@@ -853,6 +932,7 @@ public class StudentTopicsService {
             String studentId,
             String studentLogin,
             String studentFullName,
+            String studentEmail,
             String courseWorkTopic,
             String thesisTopic,
             String supervisorId,
@@ -864,6 +944,7 @@ public class StudentTopicsService {
                     studentId,
                     studentLogin,
                     studentFullName,
+                    studentEmail,
                     courseWorkTopic,
                     thesisTopic,
                     supervisorId,
@@ -873,7 +954,7 @@ public class StudentTopicsService {
         }
 
         private boolean hasStudentReference() {
-            return Stream.of(studentId, studentLogin, studentFullName)
+            return Stream.of(studentId, studentLogin, studentFullName, studentEmail)
                     .anyMatch(StringUtils::hasText);
         }
 
@@ -888,6 +969,7 @@ public class StudentTopicsService {
             Integer studentIdColumn,
             Integer studentLoginColumn,
             Integer studentFullNameColumn,
+            Integer studentEmailColumn,
             Integer courseWorkTopicColumn,
             Integer thesisTopicColumn,
             Integer supervisorIdColumn,
@@ -901,6 +983,7 @@ public class StudentTopicsService {
                             studentIdColumn,
                             studentLoginColumn,
                             studentFullNameColumn,
+                            studentEmailColumn,
                             courseWorkTopicColumn,
                             thesisTopicColumn,
                             supervisorIdColumn,
