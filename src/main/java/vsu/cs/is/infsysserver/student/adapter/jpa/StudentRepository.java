@@ -17,6 +17,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Optional<Student> findByUser_Login(String login);
 
+    Optional<Student> findByUser_EmailIgnoreCase(String email);
+
     List<Student> findBySupervisorId(Long supervisorId);
 
     @Transactional

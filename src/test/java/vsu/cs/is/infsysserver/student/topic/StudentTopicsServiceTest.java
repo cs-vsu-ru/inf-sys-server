@@ -385,6 +385,184 @@ class StudentTopicsServiceTest {
     }
 
     @Test
+    @DisplayName("При коллизии ФИО email разруливает в правильного студента")
+    void importFile_WhenFullNameCollides_EmailTiebreakerPicksRightStudent() {
+        String csvHeader =
+                "ФИО студента;email;Тема курсовой;Тема ВКР;ФИО научного руководителя";
+        String csv = String.join(
+                "\n",
+                csvHeader,
+                "Иванов Иван Иванович;ivanov.target@cs.vsu.ru;Тема курсовой;;Петров Алексей Алексеевич"
+        );
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "topics.csv",
+                "text/csv",
+                csv.getBytes(StandardCharsets.UTF_8)
+        );
+
+        Student firstHomonym = Student.builder()
+                .id(10L)
+                .user(User.builder()
+                        .login("ivanov_i_i_1")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .email("ivanov.other@cs.vsu.ru")
+                        .build())
+                .patronymic("Иванович")
+                .build();
+        Student secondHomonym = Student.builder()
+                .id(11L)
+                .user(User.builder()
+                        .login("ivanov_i_i_2")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .email("ivanov.target@cs.vsu.ru")
+                        .build())
+                .patronymic("Иванович")
+                .build();
+
+        Employee supervisor = new Employee();
+        supervisor.setId(15L);
+        supervisor.setPatronymic("Алексеевич");
+        supervisor.setUser(User.builder()
+                .login("petrov_a_a")
+                .lastName("Петров")
+                .firstName("Алексей")
+                .build());
+
+        when(studentRepository.findAll()).thenReturn(List.of(firstHomonym, secondHomonym));
+        when(studentTopicAssignmentRepository.findByStudent_Id(11L)).thenReturn(Optional.empty());
+        when(employeeRepository.findAll()).thenReturn(List.of(supervisor));
+        when(studentTopicAssignmentRepository.save(any(StudentTopicAssignment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        StudentTopicsImportResponse response = studentTopicsService.importFile(file);
+
+        assertEquals(1, response.processedRows(), response.toString());
+        assertEquals(1, response.createdRows(), response.toString());
+        assertTrue(response.errors().isEmpty(), response.errors().toString());
+
+        ArgumentCaptor<StudentTopicAssignment> assignmentCaptor =
+                ArgumentCaptor.forClass(StudentTopicAssignment.class);
+        verify(studentTopicAssignmentRepository).save(assignmentCaptor.capture());
+        assertEquals(11L, assignmentCaptor.getValue().getStudent().getId());
+        assertEquals("ivanov_i_i_2", assignmentCaptor.getValue().getStudentLogin());
+    }
+
+    @Test
+    @DisplayName("Если ФИО не найдено, fallback по email находит студента")
+    void importFile_WhenFullNameMisses_EmailFallbackFindsStudent() {
+        String csvHeader =
+                "ФИО студента;email;Тема курсовой;Тема ВКР;ФИО научного руководителя";
+        String csv = String.join(
+                "\n",
+                csvHeader,
+                "Сидоров С С;sidorov_s_s@cs.vsu.ru;Тема курсовой;;Петров Алексей Алексеевич"
+        );
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "topics.csv",
+                "text/csv",
+                csv.getBytes(StandardCharsets.UTF_8)
+        );
+
+        Student sidorov = Student.builder()
+                .id(20L)
+                .user(User.builder()
+                        .login("sidorov_s_s")
+                        .lastName("Сидоров")
+                        .firstName("Степан")
+                        .email("sidorov_s_s@cs.vsu.ru")
+                        .build())
+                .patronymic("Сергеевич")
+                .build();
+
+        Employee supervisor = new Employee();
+        supervisor.setId(15L);
+        supervisor.setPatronymic("Алексеевич");
+        supervisor.setUser(User.builder()
+                .login("petrov_a_a")
+                .lastName("Петров")
+                .firstName("Алексей")
+                .build());
+
+        when(studentRepository.findAll()).thenReturn(List.of());
+        when(studentRepository.findByUser_EmailIgnoreCase("sidorov_s_s@cs.vsu.ru"))
+                .thenReturn(Optional.of(sidorov));
+        when(studentTopicAssignmentRepository.findByStudent_Id(20L)).thenReturn(Optional.empty());
+        when(employeeRepository.findAll()).thenReturn(List.of(supervisor));
+        when(studentTopicAssignmentRepository.save(any(StudentTopicAssignment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        StudentTopicsImportResponse response = studentTopicsService.importFile(file);
+
+        assertEquals(1, response.processedRows(), response.toString());
+        assertEquals(1, response.createdRows(), response.toString());
+        assertTrue(response.errors().isEmpty(), response.errors().toString());
+
+        ArgumentCaptor<StudentTopicAssignment> assignmentCaptor =
+                ArgumentCaptor.forClass(StudentTopicAssignment.class);
+        verify(studentTopicAssignmentRepository).save(assignmentCaptor.capture());
+        assertEquals(20L, assignmentCaptor.getValue().getStudent().getId());
+        assertEquals("sidorov_s_s", assignmentCaptor.getValue().getStudentLogin());
+    }
+
+    @Test
+    @DisplayName("Коллизия ФИО без email возвращает понятную ошибку")
+    void importFile_WhenFullNameCollidesWithoutEmail_ReportsError() {
+        String csvHeader =
+                "ФИО студента;Тема курсовой;Тема ВКР;ФИО научного руководителя";
+        String csv = String.join(
+                "\n",
+                csvHeader,
+                "Иванов Иван Иванович;Тема курсовой;;Петров Алексей Алексеевич"
+        );
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "topics.csv",
+                "text/csv",
+                csv.getBytes(StandardCharsets.UTF_8)
+        );
+
+        Student firstHomonym = Student.builder()
+                .id(10L)
+                .user(User.builder()
+                        .login("ivanov_i_i_1")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .build())
+                .patronymic("Иванович")
+                .build();
+        Student secondHomonym = Student.builder()
+                .id(11L)
+                .user(User.builder()
+                        .login("ivanov_i_i_2")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .build())
+                .patronymic("Иванович")
+                .build();
+
+        when(studentRepository.findAll()).thenReturn(List.of(firstHomonym, secondHomonym));
+
+        StudentTopicsImportResponse response = studentTopicsService.importFile(file);
+
+        assertEquals(1, response.processedRows());
+        assertEquals(0, response.createdRows());
+        assertEquals(1, response.skippedRows());
+        assertEquals(1, response.errors().size());
+        assertTrue(
+                response.errors().get(0).message().contains("Найдено несколько студентов"),
+                response.errors().get(0).message()
+        );
+        assertTrue(
+                response.errors().get(0).message().contains("email"),
+                response.errors().get(0).message()
+        );
+    }
+
+    @Test
     @DisplayName("Импорт по ссылке отклоняет URL не на docs.google.com")
     void importGoogleSheet_WhenHostIsInvalid_ThrowsBadRequest() {
         ResponseStatusException exception = assertThrows(
