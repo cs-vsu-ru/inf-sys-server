@@ -339,7 +339,7 @@ public class StudentTopicsService {
                         csvValue(record, headerPositions, SUPERVISOR_LOGIN_HEADERS),
                         csvValue(record, headerPositions, SUPERVISOR_FULL_NAME_HEADERS)
                 );
-                if (!row.isBlank()) {
+                if (!row.isBlank() && !looksLikeHeaderRow(row)) {
                     rows.add(row);
                 }
             }
@@ -383,7 +383,7 @@ public class StudentTopicsService {
                         xlsxValue(row, headerMapping.supervisorLoginColumn(), headerMapping.formatter()),
                         xlsxValue(row, headerMapping.supervisorFullNameColumn(), headerMapping.formatter())
                 );
-                if (!parsedRow.isBlank()) {
+                if (!parsedRow.isBlank() && !looksLikeHeaderRow(parsedRow)) {
                     rows.add(parsedRow);
                 }
             }
@@ -480,6 +480,42 @@ public class StudentTopicsService {
             }
         }
         return null;
+    }
+
+    private static boolean looksLikeHeaderRow(ParsedStudentTopicRow row) {
+        int presentFields = 0;
+        int headerLikeFields = 0;
+        if (StringUtils.hasText(row.studentFullName())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.studentFullName(), STUDENT_FULL_NAME_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.studentEmail())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.studentEmail(), STUDENT_EMAIL_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.courseWorkTopic())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.courseWorkTopic(), COURSE_WORK_TOPIC_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.thesisTopic())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.thesisTopic(), THESIS_TOPIC_HEADERS)) headerLikeFields++;
+        }
+        if (StringUtils.hasText(row.supervisorFullName())) {
+            presentFields++;
+            if (valueMatchesAnyHeader(row.supervisorFullName(), SUPERVISOR_FULL_NAME_HEADERS)) headerLikeFields++;
+        }
+        return presentFields >= 2 && presentFields == headerLikeFields;
+    }
+
+    private static boolean valueMatchesAnyHeader(String value, List<String> headerNames) {
+        String normalized = normalizeHeaderKey(value);
+        if (normalized.isEmpty()) {
+            return false;
+        }
+        return headerNames.stream()
+                .map(StudentTopicsService::normalizeHeaderKey)
+                .anyMatch(normalized::equals);
     }
 
     private static HeaderMapping findHeaderMapping(Sheet sheet, DataFormatter formatter) {

@@ -563,6 +563,86 @@ class StudentTopicsServiceTest {
     }
 
     @Test
+    @DisplayName("ВКР-формат с повторной шапкой внутри листа импортирует все секции без фейковых ошибок")
+    void importFile_WhenThesisTemplateHasRepeatingHeaders_ImportsAllSections() throws IOException {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "thesis-topics.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                thesisTemplateWithTwoSectionsXlsx()
+        );
+
+        Student ivanov = Student.builder()
+                .id(10L)
+                .patronymic("Иванович")
+                .user(User.builder()
+                        .login("ivanov_i_i")
+                        .lastName("Иванов")
+                        .firstName("Иван")
+                        .build())
+                .build();
+        Student petrov = Student.builder()
+                .id(11L)
+                .patronymic("Петрович")
+                .user(User.builder()
+                        .login("petrov_p_p")
+                        .lastName("Петров")
+                        .firstName("Пётр")
+                        .build())
+                .build();
+        Student sidorov = Student.builder()
+                .id(12L)
+                .patronymic("Сидорович")
+                .user(User.builder()
+                        .login("sidorov_s_s")
+                        .lastName("Сидоров")
+                        .firstName("Сидор")
+                        .build())
+                .build();
+
+        Employee sychev = new Employee();
+        sychev.setId(20L);
+        sychev.setPatronymic("Владимирович");
+        sychev.setUser(User.builder()
+                .login("sychev_a_v")
+                .lastName("Сычев")
+                .firstName("Андрей")
+                .build());
+        Employee malyhin = new Employee();
+        malyhin.setId(21L);
+        malyhin.setPatronymic("Юрьевич");
+        malyhin.setUser(User.builder()
+                .login("malyhin_a_yu")
+                .lastName("Малыхин")
+                .firstName("Алексей")
+                .build());
+
+        when(studentRepository.findAll()).thenReturn(List.of(ivanov, petrov, sidorov));
+        when(studentTopicAssignmentRepository.findByStudent_Id(any())).thenReturn(Optional.empty());
+        when(employeeRepository.findAll()).thenReturn(List.of(sychev, malyhin));
+        when(studentTopicAssignmentRepository.save(any(StudentTopicAssignment.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        StudentTopicsImportResponse response = studentTopicsService.importFile(file);
+
+        assertEquals(3, response.processedRows(), response.toString());
+        assertEquals(3, response.createdRows(), response.toString());
+        assertEquals(0, response.skippedRows(), response.toString());
+        assertTrue(response.errors().isEmpty(), response.errors().toString());
+
+        ArgumentCaptor<StudentTopicAssignment> assignmentCaptor =
+                ArgumentCaptor.forClass(StudentTopicAssignment.class);
+        verify(studentTopicAssignmentRepository, org.mockito.Mockito.times(3))
+                .save(assignmentCaptor.capture());
+
+        List<StudentTopicAssignment> saved = assignmentCaptor.getAllValues();
+        assertEquals(
+                java.util.Set.of(10L, 11L, 12L),
+                saved.stream().map(a -> a.getStudent().getId()).collect(java.util.stream.Collectors.toSet())
+        );
+    }
+
+    @Test
     @DisplayName("Импорт по ссылке отклоняет URL не на docs.google.com")
     void importGoogleSheet_WhenHostIsInvalid_ThrowsBadRequest() {
         ResponseStatusException exception = assertThrows(
@@ -572,6 +652,59 @@ class StudentTopicsServiceTest {
 
         assertEquals(400, exception.getStatusCode().value());
         assertTrue(exception.getReason().contains("docs.google.com"));
+    }
+
+    private static byte[] thesisTemplateWithTwoSectionsXlsx() throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("2024");
+
+            Row titleRow = sheet.createRow(0);
+            titleRow.createCell(2).setCellValue("2024");
+            Row sectionRow1 = sheet.createRow(1);
+            sectionRow1.createCell(1).setCellValue("4 курс, ВКР");
+            sectionRow1.createCell(3).setCellValue("Информационные системы и сетевые технологии");
+
+            Row headerRow1 = sheet.createRow(2);
+            headerRow1.createCell(1).setCellValue("студент");
+            headerRow1.createCell(3).setCellValue("ТЕМА курсовой работы (3 курс)");
+            headerRow1.createCell(4).setCellValue("ФИО научного руководителя");
+            headerRow1.createCell(5).setCellValue("ТЕМА ВКР");
+
+            Row dataRow1 = sheet.createRow(3);
+            dataRow1.createCell(0).setCellValue(1);
+            dataRow1.createCell(1).setCellValue("Иванов");
+            dataRow1.createCell(2).setCellValue("Иван Иванович");
+            dataRow1.createCell(3).setCellValue("Курсовая Иванова");
+            dataRow1.createCell(4).setCellValue("Сычев А.В.");
+            dataRow1.createCell(5).setCellValue("ВКР Иванова");
+
+            Row dataRow2 = sheet.createRow(4);
+            dataRow2.createCell(0).setCellValue(2);
+            dataRow2.createCell(1).setCellValue("Петров");
+            dataRow2.createCell(2).setCellValue("Пётр Петрович");
+            dataRow2.createCell(4).setCellValue("Сычев А.В.");
+            dataRow2.createCell(5).setCellValue("ВКР Петрова");
+
+            Row sectionRow2 = sheet.createRow(6);
+            sectionRow2.createCell(3).setCellValue("Информационные системы в телекоммуникациях");
+
+            Row headerRow2 = sheet.createRow(7);
+            headerRow2.createCell(1).setCellValue("студент");
+            headerRow2.createCell(3).setCellValue("ТЕМА");
+            headerRow2.createCell(4).setCellValue("ФИО научного руководителя");
+            headerRow2.createCell(5).setCellValue("ТЕМА ВКР");
+
+            Row dataRow3 = sheet.createRow(8);
+            dataRow3.createCell(0).setCellValue(1);
+            dataRow3.createCell(1).setCellValue("Сидоров");
+            dataRow3.createCell(2).setCellValue("Сидор Сидорович");
+            dataRow3.createCell(3).setCellValue("Курсовая Сидорова");
+            dataRow3.createCell(4).setCellValue("Малыхин А.Ю.");
+            dataRow3.createCell(5).setCellValue("ВКР Сидорова");
+
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
     }
 
     private static byte[] departmentTemplateXlsx() throws IOException {
