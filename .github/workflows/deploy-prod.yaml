@@ -11,6 +11,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        shell: bash
+        run: |
+          df -h
+          docker system prune -af
+          df -h
+
       - name: Copy docker-compose to prod dir
         shell: bash
         run: cp prod/docker-compose.yaml ~/prod/docker-compose.yaml
