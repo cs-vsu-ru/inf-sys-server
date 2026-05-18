@@ -101,8 +101,7 @@ public class EmployeeService {
             try {
                 deleteEmployeeLessons(employee);
             } catch (Exception e) {
-                log.error("lessons deletion failed", e);
-                throw e;
+                log.warn("lessons deletion failed for employee id={}, continuing with disable", id, e);
             }
         }
         studentRepository.clearSupervisorForStudents(id);
@@ -118,8 +117,7 @@ public class EmployeeService {
             try {
                 deleteEmployeeLessons(employee);
             } catch (Exception e) {
-                log.error("lessons deletion failed", e);
-                throw e;
+                log.warn("lessons deletion failed for employee id={}, continuing with delete", id, e);
             }
         }
         studentRepository.clearSupervisorForStudents(id);
