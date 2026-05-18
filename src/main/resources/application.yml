@@ -43,5 +43,4 @@ application:
       resend-cooldown-seconds: ${TWO_FACTOR_RESEND_COOLDOWN_SECONDS:60}
   services:
     parser:
-      base-url: ${PARSER_URL}
-      # base-url: 'https://cs.vsu.ru/is/inf-sys-parser/'
+      base-url: ${PARSER_URL:https://cs.vsu.ru/is/inf-sys-parser/api}
