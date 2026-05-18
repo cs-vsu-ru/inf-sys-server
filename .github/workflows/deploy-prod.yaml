@@ -28,6 +28,7 @@ jobs:
         env:
           EMAIL_LOGIN: ${{ secrets.EMAIL_LOGIN }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          PARSER_URL: https://cs.vsu.ru/is/inf-sys-parser/api
         run: |
           set -e
           cd ~/prod
